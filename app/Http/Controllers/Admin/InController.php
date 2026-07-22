@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Entree;
-use App\Models\Produit;
+use App\Models\In;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
-class EntreeController extends Controller
+class InController extends Controller
 {
     public function index()
     {
-        $entrees = Entree::with('produit')
+        $entrees = In::with('produit')
             ->latest('date_entree')
             ->paginate(10);
 
@@ -20,7 +20,7 @@ class EntreeController extends Controller
 
     public function create()
     {
-        $produits = Produit::orderBy('nom')->get();
+        $produits = Product::orderBy('nom')->get();
 
         return view('admin.entrees.create', compact('produits'));
     }
@@ -33,21 +33,21 @@ class EntreeController extends Controller
             'date_entree' => ['required', 'date'],
         ]);
 
-        Entree::create($validated);
+        In::create($validated);
 
         return redirect()
             ->route('admin.entrees.index')
             ->with('success', 'Entrée enregistrée avec succès.');
     }
 
-    public function edit(Entree $entree)
+    public function edit(In $entree)
     {
-        $produits = Produit::orderBy('nom')->get();
+        $produits = Product::orderBy('nom')->get();
 
         return view('admin.entrees.edit', compact('entree', 'produits'));
     }
 
-    public function update(Request $request, Entree $entree)
+    public function update(Request $request, In $entree)
     {
         $validated = $request->validate([
             'produit_id' => ['required', 'exists:produits,id'],
@@ -62,7 +62,7 @@ class EntreeController extends Controller
             ->with('success', 'Entrée modifiée avec succès.');
     }
 
-    public function destroy(Entree $entree)
+    public function destroy(In $entree)
     {
         $entree->delete();
 

@@ -45,6 +45,28 @@
 
             <div class="mb-3">
 
+                <label class="form-label">Catégorie</label>
+
+                <select name="categorie_id" class="form-select @error('categorie_id') is-invalid @enderror">
+
+                    <option value="">-- Aucune catégorie --</option>
+
+                    @foreach($categories as $categorie)
+                        <option value="{{ $categorie->id }}" >
+                            {{ $categorie->nom }}
+                        </option>
+                    @endforeach
+
+                </select>
+
+                @error('categorie_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+
+            </div>
+
+            <div class="mb-3">
+
                 <label class="form-label">Quantité</label>
 
                 <input type="number"

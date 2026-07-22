@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 
-use App\Models\Produit;
-use App\Models\Fournisseur;
-use App\Models\Entree;
-use App\Models\Sortie;
+use App\Models\Product;
+use App\Models\Supplier;
+use App\Models\In;
+use App\Models\ActivityLog;
+use App\Models\Out;
+use Illuminate\Support\Facades\Auth;
 
 
 class DashboardController extends Controller
@@ -18,17 +20,26 @@ class DashboardController extends Controller
     public function index()
     {
 
+        $derniereConnexion = ActivityLog::where('user_id', Auth::id())
+            ->where('categorie', 'connexion')
+            ->where('description', 'like', 'Connexion réussie%')
+            ->latest()
+            ->skip(1)
+            ->first();
+
         return view('admin.dashboard', [
 
-            'produits' => Produit::count(),
+            'produits' => Product::count(),
 
-            'fournisseurs' => Fournisseur::count(),
+            'fournisseurs' => Supplier::count(),
 
-            'entrees' => Entree::count(),
+            'entrees' => In::count(),
 
-            'sorties' => Sortie::count(),
+            'sorties' => Out::count(),
 
-            'stockTotal' => Produit::sum('quantite'),
+            'stockTotal' => Product::sum('quantite'),
+
+            'derniereConnexion' => $derniereConnexion,
 
         ]);
 

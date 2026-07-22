@@ -9,15 +9,21 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <p class="text-muted mb-0">
+
         Liste de tous les produits enregistrés.
+
     </p>
 
     <a href="{{ route('admin.produits.create') }}" class="btn btn-primary">
+
         <i class="bi bi-plus-lg me-1"></i>
+
         Ajouter un produit
+
     </a>
 
 </div>
+
 
 <div class="card shadow-sm border-0">
 
@@ -26,20 +32,23 @@
         @if($produits->isEmpty())
 
             <p class="text-muted mb-0">
+
                 Aucun produit enregistré pour le moment.
+
             </p>
 
         @else
 
             <div class="table-responsive">
 
-                <table id="produitsTable" class="table table-striped table-hover align-middle">
+                <table class="table align-middle">
 
                     <thead>
 
                         <tr>
 
                             <th>Nom</th>
+                            <th>Catégorie</th>
                             <th>Description</th>
                             <th>Quantité</th>
                             <th>Prix</th>
@@ -56,6 +65,14 @@
                             <tr>
 
                                 <td>{{ $produit->nom }}</td>
+
+                                <td>
+                                    @if($produit->categorie)
+                                        <span class="badge bg-primary">{{ $produit->categorie->nom }}</span>
+                                    @else
+                                        <span class="text-muted">Aucune</span>
+                                    @endif
+                                </td>
 
                                 <td>{{ Str::limit($produit->description, 40) ?: '—' }}</td>
 
@@ -100,6 +117,12 @@
 
             </div>
 
+            <div class="mt-3">
+
+                {{ $produits->links() }}
+
+            </div>
+
         @endif
 
     </div>
@@ -107,31 +130,3 @@
 </div>
 
 @endsection
-
-@push('scripts')
-
-<script>
-
-$(document).ready(function () {
-
-    $('#produitsTable').DataTable({
-
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json'
-        },
-
-        pageLength: 10,
-
-        lengthMenu: [[10,25,50,100],[10,25,50,100]],
-
-        ordering: true,
-
-        searching: true
-
-    });
-
-});
-
-</script>
-
-@endpush

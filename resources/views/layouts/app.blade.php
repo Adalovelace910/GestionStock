@@ -235,7 +235,64 @@
             <div class="d-flex align-items-center">
 
 
-                <i class="bi bi-bell fs-4 me-4"></i>
+                <!-- Notifications -->
+
+                <div class="dropdown me-4">
+
+                    <div class="position-relative"
+                         role="button"
+                         id="notifToggle"
+                         data-bs-toggle="dropdown"
+                         aria-expanded="false"
+                         style="cursor:pointer;">
+
+                        <i class="bi bi-bell fs-4"></i>
+
+                        @php
+                            $unreadCount = \App\Models\Notification::whereNull('read_at')->count();
+                        @endphp
+
+                        @if($unreadCount > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
+
+                    </div>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 320px;" aria-labelledby="notifToggle">
+
+                        @php
+                            $recentNotifications = \App\Models\Notification::latest()->take(5)->get();
+                        @endphp
+
+                        @forelse($recentNotifications as $notification)
+
+                            <li>
+                                <div class="dropdown-item-text small {{ $notification->isRead() ? 'text-muted' : 'fw-bold' }}">
+                                    <i class="bi {{ $notification->icon }} me-1"></i>
+                                    {{ $notification->title }}
+                                    <div class="text-muted fw-normal">{{ $notification->message }}</div>
+                                </div>
+                            </li>
+
+                        @empty
+
+                            <li><span class="dropdown-item-text text-muted small">Aucune notification.</span></li>
+
+                        @endforelse
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a href="{{ route('admin.notifications.index') }}" class="dropdown-item text-center small">
+                                Voir toutes les notifications
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
 
 
                 <!-- Menu déroulant Admin -->
@@ -276,7 +333,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.profil.edit') }}" class="dropdown-item">
 
                                 <i class="bi bi-person-circle me-2"></i>
 
@@ -288,7 +345,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.profil.password.edit') }}" class="dropdown-item">
 
                                 <i class="bi bi-key me-2"></i>
 
@@ -300,7 +357,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.statistiques.index') }}" class="dropdown-item">
 
                                 <i class="bi bi-bar-chart-line me-2"></i>
 
@@ -312,7 +369,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.activites.historique') }}" class="dropdown-item">
 
                                 <i class="bi bi-clock-history me-2"></i>
 
@@ -324,7 +381,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.activites.journal') }}" class="dropdown-item">
 
                                 <i class="bi bi-journal-text me-2"></i>
 
@@ -336,7 +393,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.sauvegarde.index') }}" class="dropdown-item">
 
                                 <i class="bi bi-database-check me-2"></i>
 
@@ -348,7 +405,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.parametres.index') }}" class="dropdown-item">
 
                                 <i class="bi bi-gear me-2"></i>
 
@@ -360,7 +417,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.apropos') }}" class="dropdown-item">
 
                                 <i class="bi bi-info-circle me-2"></i>
 
@@ -435,18 +492,8 @@
 </div>
 
 </div>
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<!-- Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- DataTables -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
-@stack('scripts')
 
 </body>
 

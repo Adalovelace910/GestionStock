@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Sortie;
-use App\Models\Produit;
+use App\Models\Out;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
-class SortieController extends Controller
+class OutController extends Controller
 {
     public function index()
     {
-        $sorties = Sortie::with('produit')
+        $sorties = Out::with('produit')
             ->latest('date_sortie')
             ->paginate(10);
 
@@ -20,7 +20,7 @@ class SortieController extends Controller
 
     public function create()
     {
-        $produits = Produit::orderBy('nom')->get();
+        $produits = Product::orderBy('nom')->get();
 
         return view('admin.sorties.create', compact('produits'));
     }
@@ -33,21 +33,21 @@ class SortieController extends Controller
             'date_sortie' => ['required', 'date'],
         ]);
 
-        Sortie::create($validated);
+        Out::create($validated);
 
         return redirect()
             ->route('admin.sorties.index')
             ->with('success', 'Sortie enregistrée avec succès.');
     }
 
-    public function edit(Sortie $sortie)
+    public function edit(Out $sortie)
     {
-        $produits = Produit::orderBy('nom')->get();
+        $produits = Product::orderBy('nom')->get();
 
         return view('admin.sorties.edit', compact('sortie', 'produits'));
     }
 
-    public function update(Request $request, Sortie $sortie)
+    public function update(Request $request, Out $sortie)
     {
         $validated = $request->validate([
             'produit_id' => ['required', 'exists:produits,id'],
@@ -62,7 +62,7 @@ class SortieController extends Controller
             ->with('success', 'Sortie modifiée avec succès.');
     }
 
-    public function destroy(Sortie $sortie)
+    public function destroy(Out $sortie)
     {
         $sortie->delete();
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Fournisseur;
+use App\Models\Supplier as Fournisseur;
 use Illuminate\Http\Request;
 
 class FournisseurController extends Controller
