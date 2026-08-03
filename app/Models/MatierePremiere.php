@@ -4,11 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Produit extends Model
+class MatierePremiere extends Model
 {
-
-    protected $table = 'produits';
-
+    protected $table = 'matieres_premieres';
 
     protected $fillable = [
         'nom',
@@ -16,5 +14,4 @@ class Produit extends Model
         'quantite',
         'prix',
     ];
-
 }

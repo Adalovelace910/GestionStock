@@ -5,33 +5,41 @@
     <meta charset="UTF-8">
     <title>Login - Family</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap CSS (local) -->
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
 
     <!-- Font Awesome -->
     <link
         rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
 </head>
 
 <body
-    class="min-h-screen flex items-center justify-center bg-cover bg-center"
-    style="background-image: url('/images/Fa.jpeg');">
+    class="d-flex align-items-center justify-content-center min-vh-100 bg-cover"
+    style="background-image: url('/images/Fa.jpeg'); background-size: cover; background-position: center;">
 
     <!-- Login Card -->
-    <div class="bg-white w-full max-w-md rounded-1xl shadow-xl p-5">
+    <div class="bg-white w-100 rounded-4 shadow p-4" style="max-width: 400px;">
 
         <!-- Title -->
         <div class="text-center mb-1">
-            <h1 class="text-2xl font-bold text-black">
-                Login
+            <h1 class="fs-3 fw-bold text-dark">
+                Connexion
             </h1>
         </div>
 
+        <!-- Success message -->
+        @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+        @endif
+
         <!-- Error message -->
         @if($errors->any())
-            <div class="bg-red-100 text-red-300 p-2 rounded-lg mb-3">
-                {{ $errors->first() }}
-            </div>
+        <div class="alert alert-danger">
+            {{ $errors->first() }}
+        </div>
         @endif
 
         <form method="POST" action="{{ route('login.submit') }}" autocomplete="off">
@@ -41,7 +49,7 @@
             <!-- Email -->
             <div class="mb-2">
 
-                <label class="block text-gray-500 mb-1">
+                <label class="form-label text-secondary">
                     Email Address
                 </label>
 
@@ -51,7 +59,7 @@
                     autocomplete="off"
                     value=""
                     placeholder="Enter your email"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:outline-none"
+                    class="form-control rounded-3"
                     required>
 
             </div>
@@ -59,7 +67,7 @@
             <!-- Password -->
             <div class="mb-4">
 
-                <label class="block text-gray-500 mb-1">
+                <label class="form-label text-secondary">
                     Password
                 </label>
 
@@ -69,28 +77,27 @@
                     autocomplete="new-password"
                     value=""
                     placeholder="Enter your password"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-600 focus:outline-none"
+                    class="form-control rounded-3"
                     required>
 
             </div>
 
             <!-- Remember + Forgot password -->
-            <div class="flex justify-between items-center mb-6">
+            <div class="d-flex justify-content-between align-items-center mb-4">
 
-                <label class="flex items-center text-sm text-gray-600">
+                <label class="d-flex align-items-center small text-secondary">
 
                     <input
                         type="checkbox"
                         name="remember"
-                        class="mr-2">
+                        class="form-check-input me-2">
 
                     Remember me
 
                 </label>
 
-                <a
-                    href="{{ route('password.request') }}"
-                    class="text-green-600 hover:text-green-700 hover:underline text-sm font-semibold">
+
+                <a href="{{ route('password.request') }}" class="text-success text-decoration-none small fw-semibold">
 
                     Forgot password?
 
@@ -101,9 +108,9 @@
             <!-- Button -->
             <button
                 type="submit"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition">
+                class="w-100 btn btn-success fw-bold py-2 rounded-3">
 
-                Sign In
+                Se Connecter
 
             </button>
 

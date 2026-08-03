@@ -6,13 +6,18 @@
 
 @section('content')
 
+@php
+    $routePrefix = auth()->user()->role === 'admin' ? 'admin' : 'magasinier';
+@endphp
+
+
 <div class="d-flex justify-content-between align-items-center mb-4">
 
     <p class="text-muted mb-0">
         Liste de toutes les entrées de stock enregistrées.
     </p>
 
-    <a href="{{ route('admin.entrees.create') }}" class="btn btn-primary">
+    <a href="{{ route($routePrefix.'.entrees.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>
         Ajouter une entrée
     </a>
@@ -33,14 +38,16 @@
 
             <div class="table-responsive">
 
-                <table id="entreesTable" class="table table-striped table-hover align-middle">
+                <table id="entreesTable" class="table table-bordered table-hover align-middle">
 
-                    <thead>
+                    <thead class="table-light">
 
                         <tr>
                             <th>Produit</th>
+                            <th>Catégorie</th>
                             <th>Quantité</th>
                             <th>Date d'entrée</th>
+                            <th>Ajouté par</th>
                             <th class="text-end">Actions</th>
                         </tr>
 
@@ -54,23 +61,36 @@
 
                                 <td>{{ $entree->produit->nom ?? '—' }}</td>
 
+                                <td>
+                                    @if($entree->produit && $entree->produit->categorie)
+                                        <span class="badge bg-primary">
+                                            {{ $entree->produit->categorie->nom }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+
                                 <td>{{ $entree->quantite }}</td>
 
                                 <td>{{ $entree->date_entree->format('d/m/Y') }}</td>
 
+                                <td>{{ $entree->user->name ?? '—' }}</td>
+
                                 <td class="text-end">
 
-                                    <a href="{{ route('admin.entrees.edit', $entree) }}"
-                                       class="btn btn-sm btn-outline-primary me-1">
+                                    <a href="{{ route($routePrefix.'.entrees.edit', $entree) }}"
+                                       class="btn btn-sm btn-outline-primary">
 
                                         <i class="bi bi-pencil"></i>
 
                                     </a>
 
-                                    <form action="{{ route('admin.entrees.destroy', $entree) }}"
+                                    @if(auth()->user()->role === 'admin')
+                                    <form action="{{ route($routePrefix.'.entrees.destroy', $entree) }}"
                                           method="POST"
                                           class="d-inline"
-                                          onsubmit="return confirm('Supprimer cette entrée ?');">
+                                          onsubmit="return confirm('Supprimer cette entrée ?')">
 
                                         @csrf
                                         @method('DELETE')
@@ -82,6 +102,7 @@
                                         </button>
 
                                     </form>
+                                    @endif
 
                                 </td>
 
@@ -112,16 +133,33 @@ $(document).ready(function () {
     $('#entreesTable').DataTable({
 
         language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json'
-        },
+                sEmptyTable: "Aucune donnee disponible dans le tableau",
+                sInfo: "Affichage de _START_ a _END_ sur _TOTAL_ entrees",
+                sInfoEmpty: "Affichage de 0 a 0 sur 0 entree",
+                sInfoFiltered: "(filtre a partir de _MAX_ entrees au total)",
+                sLengthMenu: "Afficher _MENU_ elements",
+                sLoadingRecords: "Chargement...",
+                sProcessing: "Traitement...",
+                sSearch: "Rechercher :",
+                sZeroRecords: "Aucun element correspondant trouve",
+                oPaginate: {
+                    sFirst: "Premier",
+                    sLast: "Dernier",
+                    sNext: "Suivant",
+                    sPrevious: "Precedent"
+                }
+            },
 
         pageLength: 10,
 
-        lengthMenu: [[10,25,50,100],[10,25,50,100]],
+        responsive: true,
 
-        ordering: true,
-
-        searching: true
+        columnDefs: [
+            {
+                orderable: false,
+                targets: 5
+            }
+        ]
 
     });
 

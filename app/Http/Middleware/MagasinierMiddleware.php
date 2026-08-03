@@ -15,6 +15,12 @@ class MagasinierMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->user() || $request->user()->role !== 'magasinier') {
+
+            abort(403, 'Accès réservé aux magasiniers.');
+
+        }
+
         return $next($request);
     }
 }

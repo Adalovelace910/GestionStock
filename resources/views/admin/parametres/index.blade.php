@@ -88,6 +88,25 @@
 
             <div class="mb-4">
 
+                <label class="form-label">Destinataires des alertes email (stock bas)</label>
+
+                <textarea name="emails_alertes"
+                          rows="4"
+                          class="form-control @error('emails_alertes') is-invalid @enderror"
+                          placeholder="Un email par ligne, ex :&#10;admin@family.com&#10;gerant@family.com">{{ old('emails_alertes', $parametre->emails_alertes) }}</textarea>
+
+                <small class="text-muted">
+                    Toutes ces adresses recevront un email à chaque fois qu'un produit atteint le seuil de stock bas. Un email par ligne (ou séparés par des virgules). Laissez vide pour envoyer uniquement aux comptes administrateurs.
+                </small>
+
+                @error('emails_alertes')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+
+            </div>
+
+            <div class="mb-4">
+
                 <label class="form-label">Unité de mesure par défaut</label>
 
                 <input type="text"

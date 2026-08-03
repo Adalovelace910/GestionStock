@@ -18,7 +18,8 @@
     <!-- DataTables (CSS) -->
     <link rel="stylesheet"
     href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-
+    <link rel="stylesheet" href={{ asset('css/bootstrap.min.css') }}>
+    <script src= {{ asset('js/bootstrap.bundle.min.js') }}></script>
     <!-- Surcharge couleur : bleu -> vert -->
     <style>
 
@@ -89,12 +90,12 @@
 
     <div class="col-md-3 col-lg-2 bg-dark min-vh-100 p-0">
 
-        <div class="p-4 border-bottom border-secondary">
+        <div class="p-4 border-bottom border-secondary text-center d-flex align-items-center justify-content-center gap-2">
+            <img src="{{ asset('images/Fa.jpeg') }}" alt="Logo GestionStock" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
 
             <h4 class="text-white fw-bold ">
-                GestionStock
+                Family
             </h4>
-
         </div>
 
 
@@ -102,6 +103,7 @@
 
             <ul class="nav flex-column">
 
+            @if(auth()->user()->role === 'admin')
 
                 <li class="nav-item mb-2">
 
@@ -111,20 +113,6 @@
                         <i class="bi bi-speedometer2 me-2" ></i>
 
                         Tableau de bord
-
-                    </a>
-
-                </li>
-
-
-                <li class="nav-item mb-2">
-
-                    <a href="{{ route('admin.produits.index') }}"
-                       class="nav-link text-white rounded {{ request()->routeIs('admin.produits.*') ? 'bg-primary' : '' }}">
-
-                        <i class="bi bi-box-seam me-2"></i>
-
-                        Produits
 
                     </a>
 
@@ -152,6 +140,32 @@
                         <i class="bi bi-truck me-2"></i>
 
                         Fournisseurs
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item mb-2">
+
+                    <a href="{{ route('admin.produits.index') }}"
+                       class="nav-link text-white rounded {{ request()->routeIs('admin.produits.*') ? 'bg-primary' : '' }}">
+
+                        <i class="bi bi-box-seam me-2"></i>
+
+                        Produits
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item mb-2">
+
+                    <a href="{{ route('admin.matieres-premieres.index') }}"
+                       class="nav-link text-white rounded {{ request()->routeIs('admin.matieres-premieres.*') ? 'bg-primary' : '' }}">
+
+                        <i class="bi bi-basket me-2"></i>
+
+                        Matières premières
 
                     </a>
 
@@ -209,6 +223,74 @@
 
                 </li>
 
+            @else
+
+                <li class="nav-item mb-2">
+
+                    <a href="{{ route('magasinier.dashboard') }}"
+                       class="nav-link text-white rounded {{ request()->routeIs('magasinier.dashboard') ? 'bg-primary' : '' }}">
+
+                        <i class="bi bi-speedometer2 me-2"></i>
+
+                        Tableau de bord
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item mb-2">
+
+                    <a href="{{ route('magasinier.fournisseurs.index') }}"
+                       class="nav-link text-white rounded {{ request()->routeIs('magasinier.fournisseurs.*') ? 'bg-primary' : '' }}">
+
+                        <i class="bi bi-truck me-2"></i>
+
+                        Fournisseurs
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item mb-2">
+
+                    <a href="{{ route('magasinier.produits.index') }}"
+                       class="nav-link text-white rounded {{ request()->routeIs('magasinier.produits.*') ? 'bg-primary' : '' }}">
+
+                        <i class="bi bi-box-seam me-2"></i>
+
+                        Produits
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item mb-2">
+
+                    <a href="{{ route('magasinier.entrees.index') }}"
+                       class="nav-link text-white rounded {{ request()->routeIs('magasinier.entrees.*') ? 'bg-primary' : '' }}">
+
+                        <i class="bi bi-box-arrow-in-down me-2"></i>
+
+                        Entrées
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item mb-2">
+
+                    <a href="{{ route('magasinier.sorties.index') }}"
+                       class="nav-link text-white rounded {{ request()->routeIs('magasinier.sorties.*') ? 'bg-primary' : '' }}">
+
+                        <i class="bi bi-box-arrow-up me-2"></i>
+
+                        Sorties
+
+                    </a>
+
+                </li>
+
+            @endif
 
             </ul>
 
@@ -235,7 +317,68 @@
             <div class="d-flex align-items-center">
 
 
-                <i class="bi bi-bell fs-4 me-4"></i>
+                <!-- Notifications -->
+
+                @php
+                    $routePrefix = auth()->user()->role === 'admin' ? 'admin' : 'magasinier';
+                @endphp
+
+                <div class="dropdown me-4">
+
+                    <div class="position-relative"
+                         role="button"
+                         id="notifToggle"
+                         data-bs-toggle="dropdown"
+                         aria-expanded="false"
+                         style="cursor:pointer;">
+
+                        <i class="bi bi-bell fs-4"></i>
+
+                        @php
+                            $unreadCount = \App\Models\Notification::whereNull('read_at')->count();
+                        @endphp
+
+                        @if($unreadCount > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
+
+                    </div>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow" style="width: 320px;" aria-labelledby="notifToggle">
+
+                        @php
+                            $recentNotifications = \App\Models\Notification::latest()->take(5)->get();
+                        @endphp
+
+                        @forelse($recentNotifications as $notification)
+
+                            <li>
+                                <div class="dropdown-item-text small {{ $notification->isRead() ? 'text-muted' : 'fw-bold' }}">
+                                    <i class="bi {{ $notification->icon }} me-1"></i>
+                                    {{ $notification->title }}
+                                    <div class="text-muted fw-normal">{{ $notification->message }}</div>
+                                </div>
+                            </li>
+
+                        @empty
+
+                            <li><span class="dropdown-item-text text-muted small">Aucune notification.</span></li>
+
+                        @endforelse
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                            <a href="{{ route($routePrefix.'.notifications.index') }}" class="dropdown-item text-center small">
+                                Voir toutes les notifications
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
 
 
                 <!-- Menu déroulant Admin -->
@@ -273,10 +416,11 @@
                     <ul class="dropdown-menu dropdown-menu-end shadow"
                         aria-labelledby="adminMenuToggle">
 
+                    @if(auth()->user()->role === 'admin')
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.profil.edit') }}" class="dropdown-item">
 
                                 <i class="bi bi-person-circle me-2"></i>
 
@@ -288,7 +432,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.profil.password.edit') }}" class="dropdown-item">
 
                                 <i class="bi bi-key me-2"></i>
 
@@ -300,7 +444,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.statistiques.index') }}" class="dropdown-item">
 
                                 <i class="bi bi-bar-chart-line me-2"></i>
 
@@ -312,7 +456,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.activites.historique') }}" class="dropdown-item">
 
                                 <i class="bi bi-clock-history me-2"></i>
 
@@ -322,21 +466,10 @@
 
                         </li>
 
-                        <li>
-
-                            <a href="#" class="dropdown-item">
-
-                                <i class="bi bi-journal-text me-2"></i>
-
-                                Journal des opérations
-
-                            </a>
-
-                        </li>
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.sauvegarde.index') }}" class="dropdown-item">
 
                                 <i class="bi bi-database-check me-2"></i>
 
@@ -348,7 +481,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.parametres.index') }}" class="dropdown-item">
 
                                 <i class="bi bi-gear me-2"></i>
 
@@ -360,7 +493,7 @@
 
                         <li>
 
-                            <a href="#" class="dropdown-item">
+                            <a href="{{ route('admin.apropos') }}" class="dropdown-item">
 
                                 <i class="bi bi-info-circle me-2"></i>
 
@@ -369,6 +502,46 @@
                             </a>
 
                         </li>
+
+                    @else
+
+                        <li>
+
+                            <a href="{{ route('magasinier.profil.edit') }}" class="dropdown-item">
+
+                                <i class="bi bi-person-circle me-2"></i>
+
+                                Mon profil
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="{{ route('magasinier.profil.password.edit') }}" class="dropdown-item">
+
+                                <i class="bi bi-key me-2"></i>
+
+                                Changer le mot de passe
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="{{ route('magasinier.apropos') }}" class="dropdown-item">
+
+                                <i class="bi bi-info-circle me-2"></i>
+
+                                À propos de Family
+
+                            </a>
+
+                        </li>
+
+                    @endif
 
                         <li>
 
@@ -426,27 +599,27 @@
             @yield('content')
 
 
-        </main>
-
+                </main>
 
     </div>
 
-
 </div>
 
 </div>
+
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<!-- Bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- DataTables -->
+<!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
+
+<!-- Scripts spécifiques aux pages -->
 @stack('scripts')
+
 
 </body>
 

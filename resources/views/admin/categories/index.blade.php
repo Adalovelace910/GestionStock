@@ -33,9 +33,9 @@
 
             <div class="table-responsive">
 
-                <table id="categoriesTable" class="table table-striped table-hover align-middle">
+                <table id="categoriesTable" class="table table-bordered table-hover align-middle">
 
-                    <thead>
+                    <thead class="table-light">
 
                         <tr>
                             <th>Nom</th>
@@ -58,7 +58,7 @@
                                 <td class="text-end">
 
                                     <a href="{{ route('admin.categories.edit', $categorie) }}"
-                                       class="btn btn-sm btn-outline-primary me-1">
+                                       class="btn btn-sm btn-outline-primary">
 
                                         <i class="bi bi-pencil"></i>
 
@@ -67,7 +67,7 @@
                                     <form action="{{ route('admin.categories.destroy', $categorie) }}"
                                           method="POST"
                                           class="d-inline"
-                                          onsubmit="return confirm('Supprimer cette catégorie ?');">
+                                          onsubmit="return confirm('Supprimer cette catégorie ?')">
 
                                         @csrf
                                         @method('DELETE')
@@ -109,16 +109,33 @@ $(document).ready(function () {
     $('#categoriesTable').DataTable({
 
         language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json'
-        },
+                sEmptyTable: "Aucune donnee disponible dans le tableau",
+                sInfo: "Affichage de _START_ a _END_ sur _TOTAL_ entrees",
+                sInfoEmpty: "Affichage de 0 a 0 sur 0 entree",
+                sInfoFiltered: "(filtre a partir de _MAX_ entrees au total)",
+                sLengthMenu: "Afficher _MENU_ elements",
+                sLoadingRecords: "Chargement...",
+                sProcessing: "Traitement...",
+                sSearch: "Rechercher :",
+                sZeroRecords: "Aucun element correspondant trouve",
+                oPaginate: {
+                    sFirst: "Premier",
+                    sLast: "Dernier",
+                    sNext: "Suivant",
+                    sPrevious: "Precedent"
+                }
+            },
 
         pageLength: 10,
 
-        lengthMenu: [[10,25,50,100],[10,25,50,100]],
+        responsive: true,
 
-        ordering: true,
-
-        searching: true
+        columnDefs: [
+            {
+                orderable: false,
+                targets: 2
+            }
+        ]
 
     });
 

@@ -12,10 +12,12 @@
         Liste de tous les fournisseurs enregistrés.
     </p>
 
+    @if(auth()->user()->role === 'admin')
     <a href="{{ route('admin.fournisseurs.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>
         Ajouter un fournisseur
     </a>
+    @endif
 
 </div>
 
@@ -42,7 +44,9 @@
                             <th>Téléphone</th>
                             <th>Email</th>
                             <th>Adresse</th>
+                            @if(auth()->user()->role === 'admin')
                             <th class="text-end">Actions</th>
+                            @endif
                         </tr>
 
                     </thead>
@@ -58,28 +62,34 @@
                                 <td>{{ $fournisseur->email ?: '—' }}</td>
                                 <td>{{ $fournisseur->adresse ?: '—' }}</td>
 
+                                @if(auth()->user()->role === 'admin')
                                 <td class="text-end">
 
                                     <a href="{{ route('admin.fournisseurs.edit', $fournisseur) }}"
-                                       class="btn btn-sm btn-outline-primary me-1">
+                                       class="btn btn-sm btn-outline-primary">
+
                                         <i class="bi bi-pencil"></i>
+
                                     </a>
 
                                     <form action="{{ route('admin.fournisseurs.destroy', $fournisseur) }}"
                                           method="POST"
                                           class="d-inline"
-                                          onsubmit="return confirm('Supprimer ce fournisseur ?');">
+                                          onsubmit="return confirm('Supprimer ce fournisseur ?')">
 
                                         @csrf
                                         @method('DELETE')
 
                                         <button type="submit" class="btn btn-sm btn-outline-danger">
+
                                             <i class="bi bi-trash"></i>
+
                                         </button>
 
                                     </form>
 
                                 </td>
+                                @endif
 
                             </tr>
 
@@ -99,20 +109,7 @@
 
 @endsection
 
-@push('styles')
-
-<link rel="stylesheet"
-      href="https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css">
-
-@endpush
-
 @push('scripts')
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-<script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
-
-<script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
 
 <script>
 
@@ -121,20 +118,32 @@ $(document).ready(function () {
     $('#fournisseursTable').DataTable({
 
         language: {
-
-            url: '//cdn.datatables.net/plug-ins/2.3.2/i18n/fr-FR.json'
-
-        },
+                sEmptyTable: "Aucune donnee disponible dans le tableau",
+                sInfo: "Affichage de _START_ a _END_ sur _TOTAL_ entrees",
+                sInfoEmpty: "Affichage de 0 a 0 sur 0 entree",
+                sInfoFiltered: "(filtre a partir de _MAX_ entrees au total)",
+                sLengthMenu: "Afficher _MENU_ elements",
+                sLoadingRecords: "Chargement...",
+                sProcessing: "Traitement...",
+                sSearch: "Rechercher :",
+                sZeroRecords: "Aucun element correspondant trouve",
+                oPaginate: {
+                    sFirst: "Premier",
+                    sLast: "Dernier",
+                    sNext: "Suivant",
+                    sPrevious: "Precedent"
+                }
+            },
 
         pageLength: 10,
 
-        lengthMenu: [10, 25, 50, 100],
 
-        ordering: true,
-
-        searching: true,
-
-        responsive: true
+        columnDefs: [
+            {
+                orderable: false,
+                targets: {{ auth()->user()->role === 'admin' ? 4 : -1 }}
+            }
+        ]
 
     });
 

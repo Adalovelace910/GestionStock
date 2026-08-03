@@ -4,28 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Entree extends Model
+class In extends Model
 {
+    protected $table = 'entrees';
 
     protected $fillable = [
-
         'produit_id',
+        'user_id',
         'quantite',
-        'date_entree'
-
+        'date_entree',
     ];
-
 
     protected $casts = [
-
         'date_entree' => 'date',
-
     ];
-
 
     public function produit()
     {
-        return $this->belongsTo(Produit::class);
+        return $this->belongsTo(Product::class, 'produit_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
