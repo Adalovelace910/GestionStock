@@ -12,6 +12,11 @@ class MatierePremiere extends Model
         'nom',
         'description',
         'quantite',
+        'date_ajout',
         'prix',
+    ];
+
+    protected $casts = [
+        'date_ajout' => 'date',
     ];
 }

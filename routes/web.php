@@ -46,7 +46,8 @@ Route::get('/login', [LoginController::class, 'create'])
     ->name('login');
 
 Route::post('/login', [LoginController::class, 'store'])
-    ->name('login.submit');
+    ->middleware('throttle:5,1')
+    ->name('login.submit'); //Pour enlever cela , php artisan cache:clear
 
 Route::post('/logout', [LoginController::class, 'destroy'])
     ->middleware('auth')

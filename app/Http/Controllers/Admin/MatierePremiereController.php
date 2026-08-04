@@ -36,6 +36,7 @@ class MatierePremiereController extends Controller
             ],
             'description' => ['nullable', 'string', 'max:1000'],
             'quantite' => ['required', 'integer', 'min:1'],
+            'date_ajout' => ['required', 'date'],
             'prix' => ['required', 'numeric', 'min:0'],
         ], [
             'nom.required' => 'Le nom est obligatoire.',
@@ -43,6 +44,8 @@ class MatierePremiereController extends Controller
             'nom.unique' => 'Cette matière première existe déjà.',
             'quantite.required' => 'La quantité est obligatoire.',
             'quantite.min' => 'La quantité initiale doit être d\'au moins 1.',
+            'date_ajout.required' => 'La date est obligatoire.',
+            'date_ajout.date' => 'La date saisie est invalide.',
             'prix.required' => 'Le prix est obligatoire.',
             'prix.min' => 'Le prix ne peut pas être négatif.',
         ]);
