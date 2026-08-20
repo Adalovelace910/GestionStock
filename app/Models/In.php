@@ -11,17 +11,50 @@ class In extends Model
     protected $fillable = [
         'produit_id',
         'user_id',
+        'production_id',
+        'matiere_premiere_id',
+        'quantite_matiere_premiere',
+        'rendement',
         'quantite',
         'date_entree',
     ];
 
     protected $casts = [
-        'date_entree' => 'date',
+        'quantite' =>
+            'decimal:2',
+
+        'quantite_matiere_premiere' =>
+            'decimal:2',
+
+        'rendement' =>
+            'decimal:2',
+
+        'date_entree' =>
+            'date',
     ];
 
     public function produit()
     {
-        return $this->belongsTo(Product::class, 'produit_id');
+        return $this->belongsTo(
+            Product::class,
+            'produit_id'
+        );
+    }
+
+    public function matierePremiere()
+    {
+        return $this->belongsTo(
+            MatierePremiere::class,
+            'matiere_premiere_id'
+        );
+    }
+
+    public function production()
+    {
+        return $this->belongsTo(
+            Production::class,
+            'production_id'
+        );
     }
 
     public function user()

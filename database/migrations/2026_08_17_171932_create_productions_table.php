@@ -6,30 +6,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
     public function up(): void
     {
-        Schema::create('sorties', function (Blueprint $table) {
-
+        Schema::create('productions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('produit_id')
-                  ->constrained('produits')
-                  ->cascadeOnDelete();
-            $table->integer('quantite');
-            $table->date('date_sortie');
-            $table->timestamps();
+
+            $table->foreignId('matiere_premiere_id')
+                ->constrained('matieres_premieres')
+                ->restrictOnDelete();
+
+            $table->decimal('quantite_matiere_premiere', 10, 2);
+
+            $table->date('date_production');
+
             $table->foreignId('user_id')
                 ->nullable()
                 ->constrained('users')
                 ->nullOnDelete();
 
+            $table->timestamps();
         });
     }
 
-
     public function down(): void
     {
-        Schema::dropIfExists('sorties');
+        Schema::dropIfExists('productions');
     }
-
 };

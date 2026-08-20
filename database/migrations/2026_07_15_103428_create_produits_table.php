@@ -22,6 +22,10 @@ return new class extends Migration
             $table->decimal('prix', 10, 2)->default(0);
 
             $table->timestamps();
+            $table->foreignId('categorie_id')
+                ->nullable()          
+                
+                ->nullOnDelete();
         });
     }
 

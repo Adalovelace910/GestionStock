@@ -2,9 +2,14 @@
 
 @section('title', 'Ajouter un utilisateur')
 
-@section('page-title', 'Ajouter un utilisateur')
-
 @section('content')
+
+<div class="mb-4">
+    <h5 class="mb-0">Ajouter un utilisateur</h5>
+</div>
+
+<div class="row">
+<div class="col-md-6">
 
 <div class="card shadow-sm border-0">
 
@@ -96,6 +101,9 @@
 
     </div>
 
+</div>
+
+</div>
 </div>
 
 @endsection

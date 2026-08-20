@@ -32,8 +32,6 @@ class CategorieController extends Controller
             'nom.regex' => 'Le nom ne doit contenir aucun chiffre ni caractère spécial, uniquement des lettres.',
             'description.regex' => 'La description doit commencer par une lettre (pas un chiffre ni un caractère spécial).',
         ]);
-
-
         Category::create($validated);
 
 
@@ -61,8 +59,6 @@ class CategorieController extends Controller
             'nom.regex' => 'Le nom ne doit contenir aucun chiffre ni caractère spécial, uniquement des lettres.',
             'description.regex' => 'La description doit commencer par une lettre (pas un chiffre ni un caractère spécial).',
         ]);
-
-
         $category->update($validated);
 
 

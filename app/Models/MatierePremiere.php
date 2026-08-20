@@ -17,6 +17,32 @@ class MatierePremiere extends Model
     ];
 
     protected $casts = [
+        'quantite' => 'decimal:2',
         'date_ajout' => 'date',
+        'prix' => 'decimal:2',
     ];
+
+    public function produits()
+    {
+        return $this->hasMany(
+            Product::class,
+            'matiere_premiere_id'
+        );
+    }
+
+    public function reglesProduction()
+    {
+        return $this->hasMany(
+            RegleProduction::class,
+            'matiere_premiere_id'
+        );
+    }
+
+    public function productions()
+    {
+        return $this->hasMany(
+            Production::class,
+            'matiere_premiere_id'
+        );
+    }
 }

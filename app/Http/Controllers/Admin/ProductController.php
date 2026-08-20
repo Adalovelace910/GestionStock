@@ -26,8 +26,9 @@ class ProductController extends Controller
             ->latest()
             ->paginate(10);
 
-
-        return view('admin.produits.index', compact('produits'));
+        $categories = Category::orderBy('nom')->get();
+        $seuil = $this->seuilStockBas();
+        return view('admin.produits.index', compact('produits', 'categories', 'seuil'));
     }
 
 
@@ -36,8 +37,6 @@ class ProductController extends Controller
     {
         $categories = Category::orderBy('nom')->get();
         $seuil = $this->seuilStockBas();
-
-
         return view('admin.produits.create', compact('categories', 'seuil'));
     }
 
@@ -51,21 +50,16 @@ class ProductController extends Controller
         $validated = $request->validate([
 
             'nom' => [
-                'required',
-                'string',
-                'max:255',
-                'regex:/^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9\s\'\-]*$/',
-                Rule::unique('produits', 'nom')->where(function ($query) use ($request) {
-                    return $query->where('categorie_id', $request->categorie_id);
-                }),
-            ],
+                        'required',
+                        'string',
+                        'max:255',
+                        'regex:/^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ0-9\s\'\-]*$/',
+                        Rule::unique('produits', 'nom')->where(function ($query) use ($request) {
+                            return $query->where('categorie_id', $request->categorie_id);
+                        }),
+                    ],
 
-            'description' => [
-                'required',
-                'string',
-                'max:1000',
-                'regex:/^[A-Za-zÀ-ÿ]/'
-            ],
+            'description' => ['string', 'max:1000' ],
 
             'categorie_id' => [
                 'required',
@@ -89,12 +83,10 @@ class ProductController extends Controller
             'nom.required' => 'Le nom du produit est obligatoire.',
             'nom.regex' => 'Le nom doit commencer par une lettre.',
             'nom.unique' => 'Il existe déjà un produit portant ce nom dans cette catégorie.',
-
-            'description.required' => 'La description est obligatoire.',
-            'description.regex' => 'La description doit commencer par une lettre.',
-
             'categorie_id.required' => 'Veuillez choisir une catégorie.',
             'categorie_id.exists' => 'La catégorie est invalide.',
+
+            'matiere_premiere_id.unique' => 'Cette matière première est déjà liée à un autre produit.',
 
             'quantite.required' => 'La quantité est obligatoire.',
             'quantite.min' => "La quantité initiale doit être d'au moins {$seuil} (seuil de stock bas configuré dans les paramètres).",
@@ -125,16 +117,10 @@ class ProductController extends Controller
 
         ]);
 
-
-
         ActivityLog::log(
             'operation',
             "A créé le produit \"{$produit->nom}\""
         );
-
-
-
-
         return redirect()
             ->route('admin.produits.index')
             ->with(
@@ -153,8 +139,6 @@ class ProductController extends Controller
     {
 
         $categories = Category::orderBy('nom')->get();
-
-
 
         return view(
             'admin.produits.edit',
@@ -217,6 +201,7 @@ class ProductController extends Controller
             'nom.required' => 'Le nom du produit est obligatoire.',
             'nom.regex' => 'Le nom doit commencer par une lettre.',
             'nom.unique' => 'Il existe déjà un produit portant ce nom dans cette catégorie.',
+            'matiere_premiere_id.unique' => 'Cette matière première est déjà liée à un autre produit.',
 
         ]);
 
@@ -293,6 +278,5 @@ class ProductController extends Controller
             );
 
     }
-
 
 }

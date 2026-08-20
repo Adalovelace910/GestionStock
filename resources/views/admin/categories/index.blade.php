@@ -12,10 +12,10 @@
         Liste de toutes les catégories enregistrées.
     </p>
 
-    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajouterCategorieModal">
         <i class="bi bi-plus-lg me-1"></i>
         Ajouter une catégorie
-    </a>
+    </button>
 
 </div>
 
@@ -98,6 +98,74 @@
 
 </div>
 
+<!-- Modale : Ajouter une catégorie -->
+<div class="modal fade" id="ajouterCategorieModal" tabindex="-1" aria-labelledby="ajouterCategorieModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form action="{{ route('admin.categories.store') }}" method="POST">
+
+                @csrf
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="ajouterCategorieModalLabel">Ajouter une catégorie</h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label class="form-label">Nom de la catégorie</label>
+
+                        <input type="text"
+                               name="nom"
+                               value="{{ old('nom') }}"
+                               class="form-control @error('nom') is-invalid @enderror">
+
+                        @error('nom')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+
+                    </div>
+
+                    <div class="mb-0">
+
+                        <label class="form-label">Description</label>
+
+                        <textarea name="description"
+                                  rows="3"
+                                  class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
+
+                        @error('description')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
 @endsection
 
 @push('scripts')
@@ -138,6 +206,11 @@ $(document).ready(function () {
         ]
 
     });
+
+    @if ($errors->any())
+        var ajouterCategorieModal = new bootstrap.Modal(document.getElementById('ajouterCategorieModal'));
+        ajouterCategorieModal.show();
+    @endif
 
 });
 

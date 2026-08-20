@@ -5,16 +5,16 @@ use App\Http\Controllers\Auth\LoginController;
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Magasinier\DashboardController as MagasinierDashboardController;
-
 use App\Http\Controllers\Admin\{
     ProductController,
+    ProductionController,
     MatierePremiereController,
     CategorieController,
     FournisseurController,
     InController,
     OutController,
     RapportController,
-    UtilisateurController,
+    UserController,
     SettingController,
     NotificationController,
     ProfileController,
@@ -23,7 +23,6 @@ use App\Http\Controllers\Admin\{
     SauvegardeController,
     PageController
 };
-
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +56,42 @@ Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->name('password.request');
 
+Route::post('/forgot-password', function (\Illuminate\Http\Request $request) {
+    $request->validate(['email' => 'required|email']);
+
+    $status = \Illuminate\Support\Facades\Password::sendResetLink(
+        $request->only('email')
+    );
+
+    return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
+        ? back()->with('status', __($status))
+        : back()->withErrors(['email' => __($status)]);
+})->name('password.email');
+
+Route::get('/reset-password/{token}', function (string $token) {
+    return view('auth.reset-password', ['token' => $token]);
+})->name('password.reset');
+
+Route::post('/reset-password', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|confirmed|min:8',
+    ]);
+
+    $status = \Illuminate\Support\Facades\Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => \Illuminate\Support\Facades\Hash::make($password)
+            ])->save();
+        }
+    );
+
+    return $status === \Illuminate\Support\Facades\Password::PASSWORD_RESET
+        ? redirect()->route('login')->with('status', __($status))
+        : back()->withErrors(['email' => [__($status)]]);
+})->name('password.reset.submit');
 
 
 /*
@@ -151,7 +186,12 @@ Route::middleware(['auth', 'admin'])
 
         Route::resource('produits', ProductController::class);
 
+        // CRUD des matières premières (stock de matière première)
         Route::resource('matieres-premieres', MatierePremiereController::class);
+
+        // Fabrication (transforme une matière première en produits)
+        Route::resource('production', ProductionController::class)
+    ->except(['show']);
 
         Route::resource('categories', CategorieController::class);
 
@@ -163,7 +203,7 @@ Route::middleware(['auth', 'admin'])
             ->parameters([
                 'sorties' => 'sortie'
             ]);
-        Route::resource('utilisateurs', UtilisateurController::class);
+        Route::resource('utilisateurs', UserController::class);
 
 
 

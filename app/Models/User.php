@@ -30,6 +30,12 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
+     public function isMagasinier()
+    {
+        return $this->role === 'magasinier';
+    }
+
+
 
     protected function casts(): array
     {

@@ -19,6 +19,7 @@ class Setting extends Model
         'emails_alertes',
         'unite_mesure_defaut',
         'elements_par_page',
+        'poids_sac_kg',
 
     ];
 

@@ -52,73 +52,81 @@ class OutController extends Controller
         ]);
 
 
+        try {
 
-        DB::transaction(function () use ($validated) {
-
-
-            $produit = Product::findOrFail(
-                $validated['produit_id']
-            );
+            DB::transaction(function () use ($validated) {
 
 
-
-            if ($validated['quantite'] > $produit->quantite) {
-
-                throw new \Exception(
-                    "Stock insuffisant."
+                $produit = Product::lockForUpdate()->findOrFail(
+                    $validated['produit_id']
                 );
-            }
 
 
 
-            $ancienneQuantite = $produit->quantite;
+                if ($validated['quantite'] > $produit->quantite) {
+
+                    throw new \Exception(
+                        "Stock insuffisant : il ne reste que {$produit->quantite} de \"{$produit->nom}\" en stock."
+                    );
+                }
 
 
 
-            $validated['user_id'] = Auth::id();
+                $ancienneQuantite = $produit->quantite;
 
 
 
-            Out::create($validated);
+                $validated['user_id'] = Auth::id();
 
 
 
-            $produit->decrement(
-                'quantite',
-                $validated['quantite']
-            );
+                Out::create($validated);
 
 
 
-            $produit->refresh();
+                $produit->decrement(
+                    'quantite',
+                    $validated['quantite']
+                );
 
 
 
-            $produit->verifierSeuilStock(
-                $ancienneQuantite
-            );
+                $produit->refresh();
+
+
+
+                $produit->verifierSeuilStock(
+                    $ancienneQuantite
+                );
 
 
 
 
-            $auteur = Auth::user();
+                $auteur = Auth::user();
 
 
 
-            Notification::create([
-                'title' => 'Nouvelle sortie de stock',
-                'message' =>
-                "{$auteur->name} a enregistré une sortie de {$validated['quantite']} sur \"{$produit->nom}\".",
-                'icon' => 'bi-box-arrow-up',
-            ]);
+                Notification::create([
+                    'title' => 'Nouvelle sortie de stock',
+                    'message' =>
+                    "{$auteur->name} a enregistré une sortie de {$validated['quantite']} sur \"{$produit->nom}\".",
+                    'icon' => 'bi-box-arrow-up',
+                ]);
 
 
 
-            ActivityLog::log(
-                'operation',
-                "A enregistré une sortie de {$validated['quantite']} sur le produit \"{$produit->nom}\""
-            );
-        });
+                ActivityLog::log(
+                    'operation',
+                    "A enregistré une sortie de {$validated['quantite']} sur le produit \"{$produit->nom}\""
+                );
+            });
+
+        } catch (\Exception $e) {
+
+            return back()
+                ->withErrors(['quantite' => $e->getMessage()])
+                ->withInput();
+        }
 
 
 
@@ -162,123 +170,131 @@ class OutController extends Controller
 
 
 
+        try {
 
-        DB::transaction(function () use ($validated, $sortie) {
-
-
-
-            $ancienProduit = Product::findOrFail(
-                $sortie->produit_id
-            );
+            DB::transaction(function () use ($validated, $sortie) {
 
 
 
-            $nouveauProduit = Product::findOrFail(
-                $validated['produit_id']
-            );
-
-
-
-
-
-            /*
-             | Changement de produit
-             */
-
-            if ($ancienProduit->id !== $nouveauProduit->id) {
-
-
-
-                // remettre l'ancienne sortie dans l'ancien stock
-
-                $ancienProduit->increment(
-                    'quantite',
-                    $sortie->quantite
+                $ancienProduit = Product::lockForUpdate()->findOrFail(
+                    $sortie->produit_id
                 );
 
 
 
-                // retirer la nouvelle sortie du nouveau produit
+                $nouveauProduit = Product::lockForUpdate()->findOrFail(
+                    $validated['produit_id']
+                );
 
 
-                if ($validated['quantite'] > $nouveauProduit->quantite) {
 
 
-                    throw new \Exception(
-                        "Stock insuffisant pour ce produit."
+
+                /*
+                 | Changement de produit
+                 */
+
+                if ($ancienProduit->id !== $nouveauProduit->id) {
+
+
+
+                    // remettre l'ancienne sortie dans l'ancien stock
+
+                    $ancienProduit->increment(
+                        'quantite',
+                        $sortie->quantite
                     );
-                }
 
 
 
-                $ancienneQuantite =
-                    $nouveauProduit->quantite;
+                    // retirer la nouvelle sortie du nouveau produit
 
 
+                    if ($validated['quantite'] > $nouveauProduit->quantite) {
 
-                $nouveauProduit->decrement(
-                    'quantite',
-                    $validated['quantite']
-                );
-
-
-
-                $nouveauProduit->refresh();
-
-
-
-                $nouveauProduit->verifierSeuilStock(
-                    $ancienneQuantite
-                );
-            }
-
-
-
-
-            /*
-             | Même produit
-             */ else {
-
-
-
-                $difference =
-                    $validated['quantite'] - $sortie->quantite;
-
-
-
-                if ($difference > 0) {
-
-
-
-                    if ($difference > $nouveauProduit->quantite) {
 
                         throw new \Exception(
-                            "Stock insuffisant."
+                            "Stock insuffisant pour \"{$nouveauProduit->nom}\" : il ne reste que {$nouveauProduit->quantite} en stock."
                         );
                     }
 
 
 
+                    $ancienneQuantite =
+                        $nouveauProduit->quantite;
+
+
+
                     $nouveauProduit->decrement(
                         'quantite',
-                        $difference
+                        $validated['quantite']
                     );
-                } elseif ($difference < 0) {
 
 
 
-                    $nouveauProduit->increment(
-                        'quantite',
-                        abs($difference)
+                    $nouveauProduit->refresh();
+
+
+
+                    $nouveauProduit->verifierSeuilStock(
+                        $ancienneQuantite
                     );
                 }
-            }
 
 
 
 
-            $sortie->update($validated);
-        });
+                /*
+                 | Même produit
+                 */ else {
+
+
+
+                    $difference =
+                        $validated['quantite'] - $sortie->quantite;
+
+
+
+                    if ($difference > 0) {
+
+
+
+                        if ($difference > $nouveauProduit->quantite) {
+
+                            throw new \Exception(
+                                "Stock insuffisant : il ne reste que {$nouveauProduit->quantite} de \"{$nouveauProduit->nom}\" en stock."
+                            );
+                        }
+
+
+
+                        $nouveauProduit->decrement(
+                            'quantite',
+                            $difference
+                        );
+                    } elseif ($difference < 0) {
+
+
+
+                        $nouveauProduit->increment(
+                            'quantite',
+                            abs($difference)
+                        );
+                    }
+                }
+
+
+
+
+                $sortie->update($validated);
+            });
+
+        } catch (\Exception $e) {
+
+            return back()
+                ->withErrors(['quantite' => $e->getMessage()])
+                ->withInput();
+        }
 
 
 
@@ -299,7 +315,7 @@ class OutController extends Controller
         DB::transaction(function () use ($sortie) {
 
 
-            $produit = $sortie->produit;
+            $produit = Product::lockForUpdate()->find($sortie->produit_id);
 
 
 

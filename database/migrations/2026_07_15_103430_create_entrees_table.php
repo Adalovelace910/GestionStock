@@ -12,25 +12,18 @@ return new class extends Migration
         Schema::create('entrees', function (Blueprint $table) {
 
             $table->id();
-
-
             $table->unsignedBigInteger('produit_id');
-
-
             $table->integer('quantite');
-
-
             $table->date('date_entree');
-
-
             $table->timestamps();
-
-
-
             $table->foreign('produit_id')
                 ->references('id')
                 ->on('produits')
                 ->onDelete('cascade');
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
         });
     }
 

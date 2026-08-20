@@ -20,10 +20,8 @@ use Carbon\Carbon;
 class DashboardController extends Controller
 {
 
-
     public function index()
     {
-
         $derniereConnexion = ActivityLog::where('user_id', Auth::id())
             ->where('categorie', 'connexion')
             ->where('description', 'like', 'Connexion réussie%')
@@ -136,6 +134,4 @@ class DashboardController extends Controller
         ]);
 
     }
-
-
 }

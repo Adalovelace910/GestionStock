@@ -2,9 +2,14 @@
 
 @section('title', 'Ajouter un produit')
 
-@section('page-title', 'Ajouter un produit')
-
 @section('content')
+
+<div class="mb-4">
+    <h5 class="mb-0">Ajouter un produit</h5>
+</div>
+
+<div class="row">
+<div class="col-md-6">
 
 <div class="card shadow-sm border-0">
 
@@ -25,21 +30,6 @@
                        required>
 
                 @error('nom')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-
-            </div>
-
-            <div class="mb-3">
-
-                <label class="form-label">Description</label>
-
-                <textarea name="description"
-                          rows="3"
-                          class="form-control @error('description') is-invalid @enderror"
-                          required>{{ old('description') }}</textarea>
-
-                @error('description')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
 
@@ -92,7 +82,7 @@
 
             </div>
 
-            <div class="mb-4">
+            <div class="mb-3">
 
                 <label class="form-label">Prix</label>
 
@@ -110,6 +100,21 @@
 
             </div>
 
+            <div class="mb-4">
+
+                <label class="form-label">Description</label>
+
+                <textarea name="description"
+                          rows="3"
+                          class="form-control @error('description') is-invalid @enderror"
+                          >{{ old('description') }}</textarea>
+
+                @error('description')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+
+            </div>
+
             <button type="submit" class="btn btn-primary">Enregistrer</button>
 
             <a href="{{ route('admin.produits.index') }}" class="btn btn-outline-secondary">Annuler</a>
@@ -118,6 +123,9 @@
 
     </div>
 
+</div>
+
+</div>
 </div>
 
 @endsection

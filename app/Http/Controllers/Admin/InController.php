@@ -15,248 +15,473 @@ class InController extends Controller
 {
     private function routePrefix(): string
     {
-        return Auth::user()->role === 'admin' ? 'admin' : 'magasinier';
+        return Auth::user()->role === 'admin'
+            ? 'admin'
+            : 'magasinier';
     }
-
 
     public function index()
     {
-        $entrees = In::with(['produit.categorie', 'user'])->latest('date_entree')
+        $entrees =
+            In::with([
+                'produit.categorie',
+                'matierePremiere',
+                'production.matierePremiere',
+                'user',
+            ])
+            ->latest('date_entree')
             ->paginate(10);
 
-        return view('admin.entrees.index', compact('entrees'));
-    }
+        $produits =
+            Product::orderBy('nom')->get();
 
+        return view(
+            'admin.entrees.index',
+            compact(
+                'entrees',
+                'produits'
+            )
+        );
+    }
 
     public function create()
     {
-        $produits = Product::with('categorie')
-            ->orderBy('nom')
-            ->get();
+        $produits =
+            Product::with('categorie')
+                ->orderBy('nom')
+                ->get();
 
-        return view('admin.entrees.create', compact('produits'));
+        return view(
+            'admin.entrees.create',
+            compact('produits')
+        );
     }
 
-
+    /*
+     * Une entrée classique.
+     *
+     * Les productions sont créées dans
+     * ProductionController et deviennent
+     * automatiquement des entrées.
+     */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'produit_id' => ['required', 'exists:produits,id'],
-            'quantite' => ['required', 'integer', 'min:1'],
-            'date_entree' => ['required', 'date'],
-        ]);
+        $validated =
+            $request->validate([
+
+                'produit_id' =>
+                    [
+                        'required',
+                        'exists:produits,id'
+                    ],
+
+                'quantite' =>
+                    [
+                        'required',
+                        'numeric',
+                        'min:0.01'
+                    ],
+
+                'date_entree' =>
+                    [
+                        'required',
+                        'date'
+                    ],
+            ]);
 
 
-        DB::transaction(function () use ($validated) {
+        $produit = null;
+        $ancienneQuantite = 0.0;
 
-            $produit = Product::findOrFail($validated['produit_id']);
+        DB::transaction(function () use (
+            $validated,
+            &$produit,
+            &$ancienneQuantite
+        ) {
 
-            $validated['user_id'] = Auth::id();
+            $produit =
+                Product::lockForUpdate()
+                    ->findOrFail(
+                        $validated['produit_id']
+                    );
 
-            In::create($validated);
+
+            $ancienneQuantite =
+                (float)
+                $produit->quantite;
 
 
-            $ancienneQuantite = $produit->quantite;
+            In::create([
+
+                'produit_id' =>
+                    $produit->id,
+
+                'quantite' =>
+                    $validated['quantite'],
+
+                'date_entree' =>
+                    $validated['date_entree'],
+
+                'user_id' =>
+                    Auth::id(),
+
+                'production_id' =>
+                    null,
+
+                'matiere_premiere_id' =>
+                    null,
+
+                'quantite_matiere_premiere' =>
+                    null,
+
+                'rendement' =>
+                    null,
+            ]);
 
 
             $produit->increment(
                 'quantite',
                 $validated['quantite']
             );
-
-
-            $produit->refresh();
-
-            $produit->verifierSeuilStock($ancienneQuantite);
-
-
-            $auteur = Auth::user();
-
-
-            Notification::create([
-                'title' => 'Nouvelle entrée de stock',
-                'message' =>
-                "{$auteur->name} a enregistré une entrée de {$validated['quantite']} sur \"{$produit->nom}\".",
-                'icon' => 'bi-box-arrow-in-down',
-            ]);
-
-
-            ActivityLog::log(
-                'operation',
-                "A enregistré une entrée de {$validated['quantite']} sur le produit \"{$produit->nom}\""
-            );
         });
 
 
-        return redirect()
-            ->route($this->routePrefix() . '.entrees.index')
-            ->with('success', 'Entrée enregistrée avec succès.');
-    }
+        $produit->refresh();
+
+        $produit->verifierSeuilStock(
+            $ancienneQuantite
+        );
 
 
-
-    public function edit(In $entree)
-    {
-        $produits = Product::with('categorie')
-            ->orderBy('nom')
-            ->get();
+        $auteur =
+            Auth::user();
 
 
-        return view('admin.entrees.edit', compact(
-            'entree',
-            'produits'
-        ));
-    }
+        Notification::create([
 
+            'title' =>
+                'Nouvelle entrée de stock',
 
+            'message' =>
+                "{$auteur->name} a enregistré "
+                . "une entrée de "
+                . $validated['quantite']
+                . " sur \""
+                . $produit->nom
+                . "\".",
 
-
-    public function update(Request $request, In $entree)
-    {
-
-        $validated = $request->validate([
-            'produit_id' => ['required', 'exists:produits,id'],
-            'quantite' => ['required', 'integer', 'min:1'],
-            'date_entree' => ['required', 'date'],
+            'icon' =>
+                'bi-box-arrow-in-down',
         ]);
 
 
-
-        DB::transaction(function () use ($validated, $entree) {
-
-
-            $ancienProduit = Product::findOrFail(
-                $entree->produit_id
-            );
-
-
-            $nouveauProduit = Product::findOrFail(
-                $validated['produit_id']
-            );
-
-
-
-            /*
-             | Si le produit change
-             */
-
-            if ($ancienProduit->id !== $nouveauProduit->id) {
-
-
-                // retirer l'ancienne entrée de l'ancien produit
-
-                if ($ancienProduit->quantite < $entree->quantite) {
-
-                    throw new \Exception(
-                        "Impossible de modifier cette entrée : stock insuffisant."
-                    );
-                }
-
-
-                $ancienProduit->decrement(
-                    'quantite',
-                    $entree->quantite
-                );
-
-
-
-                // ajouter au nouveau produit
-
-                $ancienneQuantite = $nouveauProduit->quantite;
-
-
-                $nouveauProduit->increment(
-                    'quantite',
-                    $validated['quantite']
-                );
-
-
-                $nouveauProduit->refresh();
-
-
-                $nouveauProduit->verifierSeuilStock(
-                    $ancienneQuantite
-                );
-            }
-
-
-            /*
-             | Même produit
-             */ else {
-
-
-                $difference =
-                    $validated['quantite'] - $entree->quantite;
-
-
-
-                if ($difference > 0) {
-
-                    $nouveauProduit->increment(
-                        'quantite',
-                        $difference
-                    );
-                } elseif ($difference < 0) {
-
-                    $nouveauProduit->decrement(
-                        'quantite',
-                        abs($difference)
-                    );
-                }
-            }
-
-
-
-            $entree->update($validated);
-        });
-
+        ActivityLog::log(
+            'operation',
+            "A enregistré une entrée de "
+            . $validated['quantite']
+            . " sur le produit \""
+            . $produit->nom
+            . "\""
+        );
 
 
         return redirect()
-            ->route($this->routePrefix() . '.entrees.index')
-            ->with('success', 'Entrée modifiée avec succès.');
+            ->route(
+                $this->routePrefix()
+                . '.entrees.index'
+            )
+            ->with(
+                'success',
+                'Entrée enregistrée avec succès.'
+            );
     }
 
-
-
-
-
-    public function destroy(In $entree)
+    public function edit(In $entree)
     {
+        if ($entree->production_id) {
 
-        DB::transaction(function () use ($entree) {
+            return redirect()
+                ->route(
+                    $this->routePrefix()
+                    . '.entrees.index'
+                )
+                ->with(
+                    'error',
+                    'Une entrée créée par une production ne peut pas être modifiée ici.'
+                );
+        }
 
 
-            $produit = $entree->produit;
+        $produits =
+            Product::with('categorie')
+                ->orderBy('nom')
+                ->get();
 
 
+        return view(
+            'admin.entrees.edit',
+            compact(
+                'entree',
+                'produits'
+            )
+        );
+    }
 
-            if ($produit) {
+    public function update(
+        Request $request,
+        In $entree
+    ) {
+        if ($entree->production_id) {
+
+            return redirect()
+                ->route(
+                    $this->routePrefix()
+                    . '.entrees.index'
+                )
+                ->with(
+                    'error',
+                    'Une entrée créée par une production ne peut pas être modifiée ici.'
+                );
+        }
 
 
-                if ($produit->quantite < $entree->quantite) {
+        $validated =
+            $request->validate([
+
+                'produit_id' =>
+                    [
+                        'required',
+                        'exists:produits,id'
+                    ],
+
+                'quantite' =>
+                    [
+                        'required',
+                        'numeric',
+                        'min:0.01'
+                    ],
+
+                'date_entree' =>
+                    [
+                        'required',
+                        'date'
+                    ],
+            ]);
+
+
+        try {
+
+            DB::transaction(function () use (
+                $validated,
+                $entree
+            ) {
+
+                $ancienProduit =
+                    Product::lockForUpdate()
+                        ->findOrFail(
+                            $entree->produit_id
+                        );
+
+
+                $nouveauProduit =
+                    Product::lockForUpdate()
+                        ->findOrFail(
+                            $validated['produit_id']
+                        );
+
+
+                $ancienStock =
+                    (float)
+                    $ancienProduit->quantite;
+
+
+                $stockSansEntree =
+                    $ancienStock
+                    -
+                    (float)
+                    $entree->quantite;
+
+
+                if ($stockSansEntree < 0) {
 
                     throw new \Exception(
-                        "Suppression impossible : stock insuffisant."
+                        'Cette entrée ne peut pas être modifiée car le stock actuel est inférieur à sa quantité.'
                     );
                 }
 
+
+                if (
+                    $ancienProduit->id
+                    ===
+                    $nouveauProduit->id
+                ) {
+
+                    $nouveauStock =
+                        $stockSansEntree
+                        +
+                        (float)
+                        $validated['quantite'];
+
+                    $nouveauProduit->update([
+                        'quantite' =>
+                            $nouveauStock
+                    ]);
+
+                } else {
+
+                    $nouveauProduitStock =
+                        (float)
+                        $nouveauProduit->quantite;
+
+                    $ancienProduit->update([
+                        'quantite' =>
+                            $stockSansEntree
+                    ]);
+
+                    $nouveauProduit->update([
+                        'quantite' =>
+                            $nouveauProduitStock
+                            +
+                            (float)
+                            $validated['quantite']
+                    ]);
+                }
+
+
+                $entree->update([
+
+                    'produit_id' =>
+                        $nouveauProduit->id,
+
+                    'quantite' =>
+                        $validated['quantite'],
+
+                    'date_entree' =>
+                        $validated['date_entree'],
+                ]);
+            });
+
+        } catch (\Exception $e) {
+
+            return back()
+                ->withErrors([
+                    'quantite' => $e->getMessage()
+                ])
+                ->withInput();
+        }
+
+
+        return redirect()
+            ->route(
+                $this->routePrefix()
+                . '.entrees.index'
+            )
+            ->with(
+                'success',
+                'Entrée modifiée avec succès.'
+            );
+    }
+
+    public function destroy(In $entree)
+    {
+        /*
+         * Les entrées de production sont
+         * protégées car elles sont liées
+         * à une production.
+         */
+        if ($entree->production_id) {
+
+            return back()
+                ->with(
+                    'error',
+                    'Cette entrée provient d’une production. Elle ne peut pas être supprimée directement.'
+                );
+        }
+
+
+        $produit = $entree->produit;
+
+        if (!$produit) {
+
+            $entree->delete();
+
+            return redirect()
+                ->route(
+                    $this->routePrefix()
+                    . '.entrees.index'
+                )
+                ->with(
+                    'success',
+                    'Entrée supprimée avec succès.'
+                );
+        }
+
+        $ancienneQuantite = 0.0;
+
+        try {
+
+            DB::transaction(function () use (
+                $entree,
+                &$produit,
+                &$ancienneQuantite
+            ) {
+
+                $produit =
+                    Product::lockForUpdate()
+                        ->findOrFail(
+                            $produit->id
+                        );
+
+                if (
+                    (float)
+                    $entree->quantite
+                    >
+                    (float)
+                    $produit->quantite
+                ) {
+
+                    throw new \Exception(
+                        'Impossible de supprimer : le stock actuel est inférieur à la quantité de cette entrée.'
+                    );
+                }
+
+                $ancienneQuantite =
+                    (float)
+                    $produit->quantite;
 
                 $produit->decrement(
                     'quantite',
                     $entree->quantite
                 );
-            }
+
+                $entree->delete();
+            });
+
+        } catch (\Exception $e) {
+
+            return back()->with(
+                'error',
+                $e->getMessage()
+            );
+        }
 
 
+        $produit->refresh();
 
-            $entree->delete();
-        });
 
+        $produit->verifierSeuilStock(
+            $ancienneQuantite
+        );
 
 
         return redirect()
-            ->route($this->routePrefix() . '.entrees.index')
-            ->with('success', 'Entrée supprimée avec succès.');
+            ->route(
+                $this->routePrefix()
+                . '.entrees.index'
+            )
+            ->with(
+                'success',
+                'Entrée supprimée avec succès.'
+            );
     }
 }

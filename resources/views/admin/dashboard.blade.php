@@ -96,7 +96,7 @@
 
 <!-- En-tête du dashboard -->
 
-<div class="mb-4">
+<div >
 
     @if($derniereConnexion)
         <p class="text-muted small mb-0">

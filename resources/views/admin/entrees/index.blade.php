@@ -47,9 +47,8 @@
                             <th>Catégorie</th>
                             <th>Quantité</th>
                             <th>Date d'entrée</th>
-                            <th>Ajouté par</th>
                             <th class="text-end">Actions</th>
-                        </tr>
+                        </tr> 
 
                     </thead>
 
@@ -74,8 +73,6 @@
                                 <td>{{ $entree->quantite }}</td>
 
                                 <td>{{ $entree->date_entree->format('d/m/Y') }}</td>
-
-                                <td>{{ $entree->user->name ?? '—' }}</td>
 
                                 <td class="text-end">
 
@@ -157,7 +154,7 @@ $(document).ready(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: 5
+                targets: 4
             }
         ]
 

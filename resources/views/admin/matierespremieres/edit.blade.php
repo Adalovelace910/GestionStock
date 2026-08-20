@@ -66,7 +66,7 @@
 
             </div>
 
-            <div class="mb-4">
+            <div class="mb-3">
 
                 <label class="form-label">Prix unitaire</label>
 
@@ -79,6 +79,22 @@
                        required>
 
                 @error('prix')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+
+            </div>
+
+            <div class="mb-4">
+
+                <label class="form-label">Date</label>
+
+                <input type="date"
+                       name="date_ajout"
+                       value="{{ old('date_ajout', optional($matierePremiere->date_ajout)->format('Y-m-d')) }}"
+                       class="form-control @error('date_ajout') is-invalid @enderror"
+                       required>
+
+                @error('date_ajout')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
 

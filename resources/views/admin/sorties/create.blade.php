@@ -2,35 +2,34 @@
 
 @section('title', 'Ajouter une sortie')
 
-@section('page-title', 'Ajouter une sortie de stock')
-
 @section('content')
 
 @php
     $routePrefix = auth()->user()->role === 'admin' ? 'admin' : 'magasinier';
 @endphp
 
+<div class="mb-4">
+    <h5 class="mb-0">Ajouter une sortie de stock</h5>
+</div>
+
+<div class="row">
+<div class="col-md-6">
 
 <div class="card shadow-sm border-0">
 
     <div class="card-body">
 
 
-        <form action="{{ route($routePrefix.'.sorties.store') }}"
-              method="POST">
-
+        <form action="{{ route($routePrefix.'.sorties.store') }}" method="POST">
 
             @csrf
 
 
-
             <div class="mb-3">
-
 
                 <label class="form-label">
                     Produit
                 </label>
-
 
 
                 <select
@@ -44,54 +43,34 @@
                     </option>
 
 
-
-
                     @foreach($produits as $produit)
 
-
                         <option
-
                             value="{{ $produit->id }}"
-
                             data-prix="{{ $produit->prix }}"
-
                             data-stock="{{ $produit->quantite }}"
-
                             data-categorie="{{ $produit->categorie->nom ?? 'Sans catégorie' }}"
-
                             @selected(old('produit_id') == $produit->id)
-
                         >
 
                             {{ $produit->nom }}
 
-
                         </option>
 
-
                     @endforeach
-
 
 
                 </select>
 
 
-
-
                 @error('produit_id')
-
                     <div class="invalid-feedback">
                         {{ $message }}
                     </div>
-
                 @enderror
 
 
-
             </div>
-
-
-
 
 
 
@@ -101,11 +80,9 @@
 
                 <div class="col-md-4">
 
-
                     <label class="form-label">
                         Catégorie
                     </label>
-
 
                     <input
                         type="text"
@@ -113,20 +90,15 @@
                         class="form-control"
                         readonly>
 
-
                 </div>
-
-
 
 
 
                 <div class="col-md-4">
 
-
                     <label class="form-label">
                         Prix unitaire (FCFA)
                     </label>
-
 
                     <input
                         type="text"
@@ -134,20 +106,15 @@
                         class="form-control"
                         readonly>
 
-
                 </div>
-
-
 
 
 
                 <div class="col-md-4">
 
-
                     <label class="form-label">
-                        Stock disponible
+                        Stock actuel
                     </label>
-
 
                     <input
                         type="text"
@@ -155,15 +122,10 @@
                         class="form-control"
                         readonly>
 
-
                 </div>
 
 
-
             </div>
-
-
-
 
 
 
@@ -176,15 +138,12 @@
                 </label>
 
 
-
                 <input
                     type="number"
                     name="quantite"
-                    id="quantite"
                     min="1"
                     value="{{ old('quantite') }}"
                     class="form-control @error('quantite') is-invalid @enderror">
-
 
 
                 @error('quantite')
@@ -196,13 +155,7 @@
                 @enderror
 
 
-
-                <small class="text-muted" id="messageStock"></small>
-
-
             </div>
-
-
 
 
 
@@ -217,13 +170,11 @@
                 </label>
 
 
-
                 <input
                     type="date"
                     name="date_sortie"
                     value="{{ old('date_sortie') }}"
                     class="form-control @error('date_sortie') is-invalid @enderror">
-
 
 
                 @error('date_sortie')
@@ -235,22 +186,15 @@
                 @enderror
 
 
-
             </div>
 
 
 
 
 
-
-
-            <button type="submit"
-                    class="btn btn-primary">
-
+            <button type="submit" class="btn btn-primary">
                 Enregistrer
-
             </button>
-
 
 
             <a href="{{ route($routePrefix.'.sorties.index') }}"
@@ -262,7 +206,6 @@
 
 
 
-
         </form>
 
 
@@ -270,9 +213,8 @@
 
 </div>
 
-
-
-
+</div>
+</div>
 
 
 
@@ -280,75 +222,46 @@
 
 <script>
 
-
 document.addEventListener('DOMContentLoaded', function(){
 
 
+    const produit = document.getElementById('produit');
 
-    const produit =
-        document.getElementById('produit');
+    const categorie = document.getElementById('categorie');
 
+    const prix = document.getElementById('prix');
 
-    const categorie =
-        document.getElementById('categorie');
-
-
-    const prix =
-        document.getElementById('prix');
-
-
-    const stock =
-        document.getElementById('stock');
-
-
-    const quantite =
-        document.getElementById('quantite');
-
-
-    const messageStock =
-        document.getElementById('messageStock');
-
-
-
+    const stock = document.getElementById('stock');
 
 
 
     function afficherInformations(){
 
 
-
-        let option =
-            produit.options[produit.selectedIndex];
-
+        let option = produit.options[produit.selectedIndex];
 
 
 
         if(option.value){
 
 
-
             categorie.value =
                 option.dataset.categorie;
 
 
-
             prix.value =
                 Number(option.dataset.prix)
-                .toLocaleString('fr-FR')
-                + ' FCFA';
+                .toLocaleString('fr-FR') + ' FCFA';
 
 
 
             stock.value =
-                option.dataset.stock
-                + ' unité(s)';
-
+                option.dataset.stock + ' unité(s)';
 
 
         }
 
         else {
-
 
 
             categorie.value = '';
@@ -365,70 +278,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 
-
-
-
-    function verifierStock(){
-
-
-
-        let option =
-            produit.options[produit.selectedIndex];
-
-
-
-        if(option.value && quantite.value){
-
-
-
-            let stockDisponible =
-                parseInt(option.dataset.stock);
-
-
-
-            if(parseInt(quantite.value) > stockDisponible){
-
-
-                messageStock.innerHTML =
-                    "⚠️ Stock insuffisant. Disponible : "
-                    + stockDisponible;
-
-
-
-            }
-
-
-            else {
-
-
-
-                messageStock.innerHTML =
-                    "Stock disponible";
-
-
-            }
-
-
-
-        }
-
-
-        else {
-
-
-
-            messageStock.innerHTML = '';
-
-        }
-
-
-    }
-
-
-
-
-
-
     produit.addEventListener(
         'change',
         afficherInformations
@@ -436,23 +285,13 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
 
-    quantite.addEventListener(
-        'input',
-        verifierStock
-    );
-
-
-
     afficherInformations();
-
 
 
 });
 
 
-
 </script>
-
 
 
 @endsection
