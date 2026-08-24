@@ -4,9 +4,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
 <h5 class="mb-0">Matières premières</h5>
-<a href="{{ route('admin.matieres-premieres.create') }}" class="btn btn-success">
-<i class="bi bi-plus-lg me-1"></i>Ajouter une matière première
-</a>
+<a href="{{ route('admin.matieres-premieres.create') }}" class="btn btn-success"><i class="bi bi-plus-lg me-1"></i>Ajouter</a>
 </div>
 <div class="card shadow-sm border-0">
 <div class="card-body">
@@ -17,30 +15,24 @@
 <table id="matieresPremieresTable" class="table table-bordered table-hover align-middle mb-0">
 <thead class="table-light">
 <tr>
-<th>ID</th>
+<th>Date d'ajout</th>
 <th>Nom</th>
 <th>Unité</th>
-<th>Date d'ajout</th>
 <th class="text-end">Actions</th>
 </tr>
 </thead>
 <tbody>
 @foreach($matieresPremieres as $matiere)
 <tr>
-<td>{{ $matiere->id }}</td>
+<td>{{ $matiere->date_ajout ? $matiere->date_ajout->format('d/m/Y') : '-' }}</td>
 <td class="fw-semibold">{{ $matiere->nom }}</td>
 <td>kg</td>
-<td>{{ $matiere->date_ajout ? $matiere->date_ajout->format('d/m/Y') : '-' }}</td>
 <td class="text-end">
-<a href="{{ route('admin.matieres-premieres.edit',$matiere) }}" class="btn btn-sm btn-outline-secondary" title="Modifier">
-<i class="bi bi-pencil"></i>
-</a>
+<a href="{{ route('admin.matieres-premieres.edit',$matiere) }}" class="btn btn-sm btn-outline-secondary" title="Modifier"><i class="bi bi-pencil"></i></a>
 <form action="{{ route('admin.matieres-premieres.destroy',$matiere) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer cette matière première ?')">
 @csrf
 @method('DELETE')
-<button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
-<i class="bi bi-trash"></i>
-</button>
+<button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="bi bi-trash"></i></button>
 </form>
 </td>
 </tr>
@@ -67,17 +59,12 @@ sLoadingRecords:"Chargement...",
 sProcessing:"Traitement...",
 sSearch:"Rechercher :",
 sZeroRecords:"Aucun élément correspondant trouvé",
-oPaginate:{
-sFirst:"Premier",
-sLast:"Dernier",
-sNext:"Suivant",
-sPrevious:"Précédent"
-}
+oPaginate:{sFirst:"Premier",sLast:"Dernier",sNext:"Suivant",sPrevious:"Précédent"}
 },
 pageLength:10,
 responsive:true,
 autoWidth:false,
-columnDefs:[{orderable:false,targets:4}],
+columnDefs:[{orderable:false,targets:3}],
 order:[[0,'desc']]
 });
 }

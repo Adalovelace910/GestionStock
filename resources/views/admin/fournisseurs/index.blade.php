@@ -8,14 +8,12 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <p class="text-muted mb-0">
-        Liste de tous les fournisseurs enregistrés.
-    </p>
+    <h5 class="mb-0">Fournisseurs</h5>
 
     @if(auth()->user()->role === 'admin')
     <a href="{{ route('admin.fournisseurs.create') }}" class="btn btn-primary">
         <i class="bi bi-plus-lg me-1"></i>
-        Ajouter un fournisseur
+        Ajouter 
     </a>
     @endif
 

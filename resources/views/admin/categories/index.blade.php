@@ -8,13 +8,12 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-    <p class="text-muted mb-0">
-        Liste de toutes les catégories enregistrées.
-    </p>
+        <h5 class="mb-0">Catégories</h5>   
+     
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ajouterCategorieModal">
         <i class="bi bi-plus-lg me-1"></i>
-        Ajouter une catégorie
+        Ajouter 
     </button>
 
 </div>

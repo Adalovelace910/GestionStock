@@ -8,9 +8,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <style>
-html,body{margin:0;padding:0;overflow-x:hidden}
+html,body{margin:0;padding:0;overflow-x:hidden;height:100%;overscroll-behavior:none}
+html{background:#fff}
 body{display:flex;flex-direction:column;min-height:100vh}
-#app-shell{display:flex;flex-direction:column;flex:1 0 auto;width:100%}
+#app-shell{display:flex;flex-direction:column;flex:1 0 auto;width:100%;min-height:100vh}
 #app-shell>.row{flex:1 0 auto;margin:0}
 :root{--bs-primary:#198754;--bs-primary-rgb:25,135,84}
 .bg-primary{background-color:#198754!important}
