@@ -6,6 +6,18 @@
 
 @section('content')
 
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+    <h2 class="fw-bold mb-0">Historique des activités</h2>
+
+    <a href="{{ route('admin.dashboard') }}"
+       class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>
+        Retour
+    </a>
+
+</div>
+
 <div class="card shadow-sm border-0">
 
     <div class="card-body">
