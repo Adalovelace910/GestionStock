@@ -8,10 +8,6 @@
 <i class="bi bi-plus-lg me-1"></i>Faire une production
 </a>
 </div>
-@if(session('error'))
-<div class="alert alert-danger">{{ session('error') }}</div>
-@endif
-
 <div class="card shadow-sm border-0">
 <div class="card-body">
 <div class="table-responsive">
@@ -75,7 +71,16 @@
 $(document).ready(function(){
 $('#productionsTable').DataTable({
 language:{
-url:'https://cdn.datatables.net/plug-ins/2.3.3/i18n/fr-FR.json'
+sEmptyTable:"Aucune donnee disponible dans le tableau",
+sInfo:"Affichage de _START_ a _END_ sur _TOTAL_ elements",
+sInfoEmpty:"Affichage de 0 a 0 sur 0 element",
+sInfoFiltered:"(filtre a partir de _MAX_ elements au total)",
+sLengthMenu:"Afficher _MENU_ elements",
+sLoadingRecords:"Chargement...",
+sProcessing:"Traitement...",
+sSearch:"Rechercher :",
+sZeroRecords:"Aucun element correspondant trouve",
+oPaginate:{sFirst:"Premier",sLast:"Dernier",sNext:"Suivant",sPrevious:"Precedent"}
 },
 pageLength:10,
 lengthMenu:[[10,25,50,100,-1],[10,25,50,100,'Tous']],
