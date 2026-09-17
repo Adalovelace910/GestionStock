@@ -1,143 +1,202 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Magasinier')
-
-@section('page-title', 'Tableau de bord')
+@section('title', 'Dashboard Magasinier - Family')
+@section('page-title', 'Tableau de bord Magasinier')
 
 @section('content')
+<div class="container-fluid px-0">
 
-<div class="dash">
+    <!-- En-tête : Salutation & Raccourcis Magasinier -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">Bonjour, {{ auth()->user()->name }} 👋</h3>
+            <p class="text-muted small mb-0">Espace opérationnel de gestion des flux d'entrepôt.</p>
+        </div>
 
-<style>
-    .dash { animation: dashFadeIn .4s ease both; }
-    @keyframes dashFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-    .dash .kpi-card {
-        background: #fff;
-        border: 1px solid #eef0f2;
-        border-radius: 16px;
-        padding: 1.25rem 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, .04);
-        transition: transform .18s ease, box-shadow .18s ease;
-    }
-    .dash .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(15, 23, 42, .08); }
-
-    .dash .kpi-icon {
-        width: 54px; height: 54px; min-width: 54px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.35rem; color: #fff;
-    }
-    .dash .kpi-icon.ic-primary { background: #0d6efd; }
-    .dash .kpi-icon.ic-success { background: #198754; }
-    .dash .kpi-icon.ic-warning { background: #fd7e14; }
-    .dash .kpi-icon.ic-danger  { background: #dc3545; }
-
-    .dash .kpi-label { font-size: .85rem; color: #6c757d; margin-bottom: .1rem; }
-    .dash .kpi-value { font-size: 1.6rem; font-weight: 700; color: #1a1f2b; line-height: 1.2; }
-
-    .dash .panel {
-        background: #fff; border: 1px solid #eef0f2; border-radius: 16px;
-        overflow: hidden; box-shadow: 0 1px 3px rgba(15, 23, 42, .04);
-    }
-    .dash .panel-header { padding: 1rem 1.25rem; font-weight: 600; color: #1a1f2b; border-bottom: 1px solid #f1f2f4; }
-    .dash .panel-body { padding: 1.25rem; }
-
-    .dash .stockbas-item {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: .6rem 0; border-bottom: 1px solid #f8f9fa; color: #333;
-    }
-    .dash .stockbas-item:last-child { border-bottom: none; }
-    .dash .stockbas-badge { background: #fd7e14; color: #fff; font-weight: 700; font-size: .8rem; border-radius: 999px; padding: .2rem .65rem; }
-</style>
-
-
-<div class="row g-4 mb-4">
-
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div class="kpi-icon ic-primary"><i class="bi bi-box-seam-fill"></i></div>
-            <div>
-                <div class="kpi-label">Produits</div>
-                <div class="kpi-value">{{ $produits }}</div>
-            </div>
+        <!-- Quick actions -->
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('magasinier.entrees.create') }}" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-box-arrow-in-down"></i>
+                <span>Enregistrer Entrée</span>
+            </a>
+            <a href="{{ route('magasinier.sorties.create') }}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+                <i class="bi bi-box-arrow-up"></i>
+                <span>Enregistrer Sortie</span>
+            </a>
+            <a href="{{ route('magasinier.produits.index') }}" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1">
+                <i class="bi bi-box-seam"></i>
+                <span>Catalogue Produits</span>
+            </a>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div class="kpi-icon ic-success"><i class="bi bi-box-arrow-in-down"></i></div>
-            <div>
-                <div class="kpi-label">Entrées aujourd'hui</div>
-                <div class="kpi-value">{{ $entreesAujourdhui }}</div>
+    <!-- Cartes KPI -->
+    <div class="row g-3 g-lg-4 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-card accent-emerald">
+                <div class="kpi-icon-box emerald">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Articles au catalogue</div>
+                    <div class="kpi-number">{{ $produits }}</div>
+                    <div class="kpi-subtext">Références actives</div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div class="kpi-icon ic-warning"><i class="bi bi-box-arrow-up"></i></div>
-            <div>
-                <div class="kpi-label">Sorties aujourd'hui</div>
-                <div class="kpi-value">{{ $sortiesAujourdhui }}</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div class="kpi-icon ic-danger"><i class="bi bi-exclamation-triangle-fill"></i></div>
-            <div>
-                <div class="kpi-label">Produits en rupture</div>
-                <div class="kpi-value">{{ $produitsRupture }}</div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-
-<div class="row g-4">
-
-    <div class="col-md-7">
-        <div class="panel">
-            <div class="panel-header">Bienvenue</div>
-            <div class="panel-body">
-                <p>Bonjour <strong>{{ auth()->user()->name }}</strong>.</p>
-                <p>Vous êtes connecté en tant que <strong>Magasinier</strong>.</p>
-                <hr>
-                <h6 class="fw-bold">Vos principales tâches</h6>
-                <ul class="mb-0">
-                    <li>Enregistrer les entrées de stock.</li>
-                    <li>Enregistrer les sorties de stock.</li>
-                    <li>Consulter les produits.</li>
-                    <li>Consulter les fournisseurs.</li>
-                    <li>Suivre les quantités disponibles.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-5">
-        <div class="panel">
-            <div class="panel-header">Stock bas (&le; {{ $seuil }})</div>
-            <div class="panel-body p-0">
-                @forelse($produitsStockBas as $produit)
-                    <div class="stockbas-item" style="padding-left:1.25rem; padding-right:1.25rem;">
-                        {{ $produit->nom }}
-                        <span class="stockbas-badge">{{ $produit->quantite }}</span>
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-card accent-blue">
+                <div class="kpi-icon-box blue">
+                    <i class="bi bi-box-arrow-in-down"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Entrées aujourd'hui</div>
+                    <div class="kpi-number">{{ number_format($entreesAujourdhui, 0, ',', ' ') }}</div>
+                    <div class="kpi-subtext text-success d-flex align-items-center gap-1">
+                        <i class="bi bi-check-circle"></i> Réceptionnées
                     </div>
-                @empty
-                    <div class="stockbas-item text-muted" style="padding-left:1.25rem;">Aucun produit en stock bas.</div>
-                @endforelse
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-card accent-amber">
+                <div class="kpi-icon-box amber">
+                    <i class="bi bi-box-arrow-up"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Sorties aujourd'hui</div>
+                    <div class="kpi-number">{{ number_format($sortiesAujourdhui, 0, ',', ' ') }}</div>
+                    <div class="kpi-subtext text-warning d-flex align-items-center gap-1">
+                        <i class="bi bi-arrow-up-right"></i> Expédiées
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="kpi-card accent-rose">
+                <div class="kpi-icon-box rose">
+                    <i class="bi bi-exclamation-octagon-fill"></i>
+                </div>
+                <div>
+                    <div class="kpi-title">Stock bas / Ruptures</div>
+                    <div class="kpi-number text-danger">{{ $produitsRupture }}</div>
+                    <div class="kpi-subtext text-danger">Seuil &le; {{ $seuil }} unités</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tâches & Alertes Magasinier -->
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-clipboard2-check-fill text-primary"></i>
+                        <span>Missions & Guide Opérationnel</span>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary">Magasinier</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 bg-light border border-light-subtle h-100">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="p-2 rounded-circle bg-success text-white" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-box-arrow-in-down small"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">Réception & Entrées</h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    Enregistrez chaque livraison de marchandises en précisant le fournisseur et la quantité réelle vérifiée.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 bg-light border border-light-subtle h-100">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="p-2 rounded-circle bg-warning text-white" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-box-arrow-up small"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">Distribution & Sorties</h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    Consignez immédiatement chaque déstockage pour préserver l'exactitude permanente des stocks.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 bg-light border border-light-subtle h-100">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="p-2 rounded-circle bg-info text-white" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-truck small"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">Annuaire Fournisseurs</h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    Accédez aux coordonnées directes des fournisseurs pour suivre les commandes et livraisons.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 bg-light border border-light-subtle h-100">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="p-2 rounded-circle bg-danger text-white" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-shield-exclamation small"></i>
+                                    </div>
+                                    <h6 class="mb-0 fw-bold">Surveillance des Seuils</h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    Signalez sans attendre à l'administrateur les références en rupture ou en stock critique.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                        <span>Stock bas (&le; {{ $seuil }} unités)</span>
+                    </div>
+                    <a href="{{ route('magasinier.produits.index') }}" class="small text-decoration-none fw-semibold text-danger">
+                        Consulter <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    @forelse($produitsStockBas as $produit)
+                        <div class="d-flex align-items-center justify-content-between p-3 border-bottom border-light">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-box text-muted"></i>
+                                <div>
+                                    <div class="fw-bold text-dark small">{{ $produit->nom }}</div>
+                                    <small class="text-muted">{{ $produit->categorie->nom ?? 'Sans catégorie' }}</small>
+                                </div>
+                            </div>
+                            <span class="badge {{ $produit->quantite == 0 ? 'badge-soft-danger' : 'badge-soft-warning' }}">
+                                {{ $produit->quantite }} unité(s)
+                            </span>
+                        </div>
+                    @empty
+                        <div class="text-center py-5 text-muted small">
+                            <i class="bi bi-check-circle text-success fs-2 d-block mb-1"></i>
+                            Aucun produit sous le seuil d'alerte.
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>
 
 </div>
-
-</div>
-
 @endsection

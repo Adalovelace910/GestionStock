@@ -36,12 +36,12 @@
 
         <p class="mb-1"><strong>Adresse : AGBANLEPEDO</strong> {{ $parametre->adresse ?? '—' }}</p>
 
-        <p class="mb-1"><strong>Téléphone :</strong> {{ $parametre->telephone ?? '—' }}</p>
+        <p class="mb-1"><strong>Téléphone: 90 56 29 50</strong> {{ $parametre->telephone ?? '—' }}</p>
 
         <p class="mb-0">
             <strong>Site web :</strong>
             <a href="https://exemple-a-remplacer.com" target="_blank" rel="noopener noreferrer">
-                https://exemple-a-remplacer.com
+                https://www.goafricaonline.com
             </a>
         </p>
 
