@@ -20,17 +20,10 @@ class In extends Model
     ];
 
     protected $casts = [
-        'quantite' =>
-            'decimal:2',
-
-        'quantite_matiere_premiere' =>
-            'decimal:2',
-
-        'rendement' =>
-            'decimal:2',
-
-        'date_entree' =>
-            'date',
+        'quantite' => 'integer',
+        'quantite_matiere_premiere' => 'integer',
+        'rendement' => 'decimal:2',
+        'date_entree' => 'date',
     ];
 
     public function produit()

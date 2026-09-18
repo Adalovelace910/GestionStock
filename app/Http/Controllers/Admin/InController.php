@@ -78,8 +78,8 @@ class InController extends Controller
                 'quantite' =>
                     [
                         'required',
-                        'numeric',
-                        'min:0.01'
+                        'integer',
+                        'min:1'
                     ],
 
                 'date_entree' =>
@@ -257,8 +257,8 @@ class InController extends Controller
                 'quantite' =>
                     [
                         'required',
-                        'numeric',
-                        'min:0.01'
+                        'integer',
+                        'min:1'
                     ],
 
                 'date_entree' =>

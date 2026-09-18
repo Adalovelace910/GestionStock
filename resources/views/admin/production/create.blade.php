@@ -139,8 +139,8 @@
                             type="number"
                             name="quantite_matiere_premiere"
                             id="quantite_matiere_premiere"
-                            min="0.01"
-                            step="0.01"
+                            min="1"
+                            step="1"
                             value="{{ old(
                                 'quantite_matiere_premiere'
                             ) }}"
@@ -280,8 +280,7 @@ document.addEventListener(
             return Number(value).toLocaleString(
                 'fr-FR',
                 {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 2
+                    maximumFractionDigits: 0
                 }
             );
         }
@@ -364,10 +363,12 @@ document.addEventListener(
                 function (regle) {
 
                     const production =
-                        quantite
-                        *
-                        Number(
-                            regle.quantite_par_kg
+                        Math.round(
+                            quantite
+                            *
+                            Number(
+                                regle.quantite_par_kg
+                            )
                         );
 
 
@@ -378,20 +379,19 @@ document.addEventListener(
 
 
                     ligne.className =
-                        'd-flex justify-content-between border-bottom py-2';
+                        'd-flex justify-content-between align-items-center border-bottom py-2';
+
+
+                    const detailTexte = production > 0
+                        ? `<strong class="text-success">${formatNumber(production)} sac(s)</strong>`
+                        : `<span class="text-warning small">Quantité insuffisante pour fabriquer 1 sac</span>`;
 
 
                     ligne.innerHTML = `
-
                         <span>
                             ${regle.produit_nom}
                         </span>
-
-                        <strong>
-                            ${formatNumber(production)}
-                            sac(s)
-                        </strong>
-
+                        ${detailTexte}
                     `;
 
 

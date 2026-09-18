@@ -30,7 +30,7 @@ $routePrefix = auth()->user()->role === 'admin' ? 'admin' : 'magasinier';
 </div>
 <div class="mb-3">
 <label for="quantite" class="form-label">Quantité entrée</label>
-<input type="number" name="quantite" id="quantite" min="0.01" step="0.01" value="{{ old('quantite', $entree->quantite) }}" class="form-control" required>
+<input type="number" name="quantite" id="quantite" min="1" step="1" value="{{ old('quantite', (int) $entree->quantite) }}" class="form-control" required>
 </div>
 <div class="mb-4">
 <label for="date_entree" class="form-label">Date d'entrée</label>

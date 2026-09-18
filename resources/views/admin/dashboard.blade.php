@@ -204,7 +204,7 @@
                                             </td>
                                             <td class="text-end pe-3">
                                                 <span class="badge badge-soft-success">
-                                                    +{{ $entree->quantite }}
+                                                    +{{ (int) $entree->quantite }}
                                                 </span>
                                             </td>
                                         </tr>

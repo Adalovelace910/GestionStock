@@ -36,7 +36,7 @@ $routePrefix = auth()->user()->role === 'admin' ? 'admin' : 'magasinier';
 <span class="text-muted">—</span>
 @endif
 </td>
-<td>{{ $entree->quantite }}</td>
+<td>{{ (int) $entree->quantite }}</td>
 <td class="text-end">
 <a href="{{ route($routePrefix.'.entrees.edit', $entree) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
 @if(auth()->user()->role === 'admin')

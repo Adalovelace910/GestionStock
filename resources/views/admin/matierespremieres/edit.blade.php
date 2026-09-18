@@ -20,7 +20,7 @@
 </div>
 <div class="mb-3">
 <label class="form-label">Quantité</label>
-<input type="number" name="quantite" min="0" value="{{ old('quantite', $matierePremiere->quantite) }}" class="form-control @error('quantite') is-invalid @enderror" required>
+<input type="number" step="1" name="quantite" min="0" value="{{ old('quantite', (int) $matierePremiere->quantite) }}" class="form-control @error('quantite') is-invalid @enderror" required>
 <small class="text-muted">Modifiez directement ce champ pour ajuster le stock (réception, consommation, correction...).</small>
 @error('quantite')<div class="invalid-feedback">{{ $message }}</div>@enderror
 </div>

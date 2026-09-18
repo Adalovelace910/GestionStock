@@ -36,7 +36,7 @@ class OutController extends Controller
     {
         $validated = $request->validate([
             'produit_id' => ['required', 'exists:produits,id'],
-            'quantite' => ['required', 'numeric', 'min:0.01'],
+            'quantite' => ['required', 'integer', 'min:1'],
             'date_sortie' => ['required', 'date'],
         ]);
 

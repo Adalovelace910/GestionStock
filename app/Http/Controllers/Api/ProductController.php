@@ -68,7 +68,7 @@ class ProductController extends Controller
             ],
             'description' => ['nullable', 'string', 'max:1000'],
             'categorie_id' => ['required', 'exists:categories,id'],
-            'quantite' => ['required', 'numeric', 'min:0'],
+            'quantite' => ['required', 'integer', 'min:0'],
             'prix' => ['required', 'numeric', 'min:0'],
         ]);
 
@@ -115,7 +115,7 @@ class ProductController extends Controller
             ],
             'description' => ['nullable', 'string', 'max:1000'],
             'categorie_id' => ['required', 'exists:categories,id'],
-            'quantite' => ['required', 'numeric', 'min:0'],
+            'quantite' => ['required', 'integer', 'min:0'],
             'prix' => ['required', 'numeric', 'min:0'],
         ]);
 

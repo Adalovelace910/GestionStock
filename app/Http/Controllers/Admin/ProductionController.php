@@ -41,19 +41,19 @@ public function store(Request $request)
 {
 $validated = $request->validate([
 'matiere_premiere_id' => ['required', 'exists:matieres_premieres,id'],
-'quantite_matiere_premiere' => ['required', 'numeric', 'min:0.01'],
+'quantite_matiere_premiere' => ['required', 'integer', 'min:1'],
 'date_production' => ['required', 'date'],
 ], [
 'matiere_premiere_id.required' => 'Veuillez choisir une matière première.',
 'matiere_premiere_id.exists' => 'La matière première choisie est invalide.',
 'quantite_matiere_premiere.required' => 'Veuillez saisir la quantité utilisée.',
-'quantite_matiere_premiere.numeric' => 'La quantité doit être un nombre.',
-'quantite_matiere_premiere.min' => 'La quantité doit être supérieure à 0 kg.',
+'quantite_matiere_premiere.integer' => 'La quantité doit être un nombre entier.',
+'quantite_matiere_premiere.min' => 'La quantité doit être d’au moins 1 kg.',
 'date_production.required' => 'La date de production est obligatoire.',
 'date_production.date' => 'La date de production est invalide.',
 ]);
 
-$quantiteMatiere = (float) $validated['quantite_matiere_premiere'];
+$quantiteMatiere = (int) $validated['quantite_matiere_premiere'];
 
 $regles = RegleProduction::with('produit')->where('matiere_premiere_id', $validated['matiere_premiere_id'])->get();
 
@@ -62,11 +62,16 @@ return back()->withErrors(['matiere_premiere_id' => 'Aucune règle de production
 }
 
 $resultats = $regles->map(function ($regle) use ($quantiteMatiere) {
-return ['produit_id' => $regle->produit_id, 'produit_nom' => $regle->produit->nom, 'quantite' => round($quantiteMatiere * (float) $regle->quantite_par_kg, 2)];
+$qteProduit = (int) round($quantiteMatiere * (float) $regle->quantite_par_kg);
+return [
+'produit_id' => $regle->produit_id,
+'produit_nom' => $regle->produit->nom,
+'quantite' => $qteProduit,
+];
 })->filter(fn($resultat) => $resultat['quantite'] > 0)->values();
 
 if ($resultats->isEmpty()) {
-return back()->withErrors(['quantite_matiere_premiere' => 'Cette quantité ne produit aucun produit avec les règles configurées.'])->withInput();
+return back()->withErrors(['quantite_matiere_premiere' => 'Cette quantité ne permet de fabriquer aucun produit complet (minimum 1 unité). Augmentez la quantité de matière première.'])->withInput();
 }
 
 $matiereNom = '';
@@ -75,7 +80,7 @@ $stocksAvantProduction = [];
 
 DB::transaction(function () use ($validated, $quantiteMatiere, $resultats, &$matiereNom, &$resume, &$stocksAvantProduction) {
 $matierePremiere = MatierePremiere::lockForUpdate()->findOrFail($validated['matiere_premiere_id']);
-$stockMatiere = (float) $matierePremiere->quantite;
+$stockMatiere = (int) $matierePremiere->quantite;
 
 if ($quantiteMatiere > $stockMatiere) {
 throw ValidationException::withMessages(['quantite_matiere_premiere' => "Stock insuffisant : il reste " . $stockMatiere . " kg de \"" . $matierePremiere->nom . "\"."]);
@@ -94,7 +99,7 @@ $matierePremiere->decrement('quantite', $quantiteMatiere);
 
 foreach ($resultats as $resultat) {
 $produit = Product::lockForUpdate()->findOrFail($resultat['produit_id']);
-$stocksAvantProduction[$produit->id] = (float) $produit->quantite;
+$stocksAvantProduction[$produit->id] = (int) $produit->quantite;
 
 In::create([
 'produit_id' => $produit->id,
@@ -153,7 +158,7 @@ $validated = $request->validate([
 
 $production->update($validated);
 
-ActivityLog::log('operation', "A modifié la date d'une production de " . $this->formatNumber((float) $production->quantite_matiere_premiere) . " kg de \"" . $production->matierePremiere->nom . "\".");
+ActivityLog::log('operation', "A modifié la date d'une production de " . $this->formatNumber((int) $production->quantite_matiere_premiere) . " kg de \"" . $production->matierePremiere->nom . "\".");
 
 return redirect()->route($this->routePrefix() . '.production.index')->with('success', 'Date de production mise à jour avec succès.');
 }
@@ -162,19 +167,19 @@ public function destroy(Production $production)
 {
 $production->load('entrees');
 $matiereNom = '';
-$quantiteMatiere = 0.0;
+$quantiteMatiere = 0;
 
 try {
 DB::transaction(function () use ($production, &$matiereNom, &$quantiteMatiere) {
 $matierePremiere = MatierePremiere::lockForUpdate()->findOrFail($production->matiere_premiere_id);
 $matiereNom = $matierePremiere->nom;
-$quantiteMatiere = (float) $production->quantite_matiere_premiere;
+$quantiteMatiere = (int) $production->quantite_matiere_premiere;
 
 $produitsVerrouilles = [];
 foreach ($production->entrees as $entree) {
 $produit = Product::lockForUpdate()->findOrFail($entree->produit_id);
-if ((float) $entree->quantite > (float) $produit->quantite) {
-throw new \Exception("Impossible de supprimer : le stock de \"" . $produit->nom . "\" est inférieur à la quantité produite (" . $this->formatNumber((float) $entree->quantite) . "). Une partie a probablement déjà été vendue.");
+if ((int) $entree->quantite > (int) $produit->quantite) {
+throw new \Exception("Impossible de supprimer : le stock de \"" . $produit->nom . "\" est inférieur à la quantité produite (" . $this->formatNumber((int) $entree->quantite) . "). Une partie a probablement déjà été vendue.");
 }
 $produitsVerrouilles[$entree->id] = $produit;
 }
@@ -183,7 +188,7 @@ $matierePremiere->increment('quantite', $quantiteMatiere);
 
 foreach ($production->entrees as $entree) {
 $produit = $produitsVerrouilles[$entree->id];
-$produit->decrement('quantite', $entree->quantite);
+$produit->decrement('quantite', (int) $entree->quantite);
 $entree->delete();
 }
 
@@ -198,9 +203,8 @@ ActivityLog::log('operation', "A supprimé une production de " . $this->formatNu
 return redirect()->route($this->routePrefix() . '.production.index')->with('success', 'Production supprimée avec succès. La matière première a été restaurée et les produits fabriqués retirés du stock.');
 }
 
-private function formatNumber(float $value): string
+private function formatNumber(int|float $value): string
 {
-$formatted = number_format($value, 2, ',', ' ');
-return rtrim(rtrim($formatted, '0'), ',');
+return number_format($value, 0, ',', ' ');
 }
 }

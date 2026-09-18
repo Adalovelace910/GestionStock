@@ -22,7 +22,7 @@ class MatierePremiereController extends Controller
         $validated = $request->validate([
             'nom' => ['required', 'string', 'max:255', 'unique:matieres_premieres,nom'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'quantite' => ['required', 'numeric', 'min:0'],
+            'quantite' => ['required', 'integer', 'min:0'],
             'date_ajout' => ['required', 'date'],
             'prix' => ['required', 'numeric', 'min:0'],
         ]);
@@ -47,7 +47,7 @@ class MatierePremiereController extends Controller
         $validated = $request->validate([
             'nom' => ['required', 'string', 'max:255', 'unique:matieres_premieres,nom,' . $matierePremiere->id],
             'description' => ['nullable', 'string', 'max:1000'],
-            'quantite' => ['required', 'numeric', 'min:0'],
+            'quantite' => ['required', 'integer', 'min:0'],
             'date_ajout' => ['required', 'date'],
             'prix' => ['required', 'numeric', 'min:0'],
         ]);

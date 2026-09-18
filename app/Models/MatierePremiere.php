@@ -17,7 +17,7 @@ class MatierePremiere extends Model
     ];
 
     protected $casts = [
-        'quantite' => 'decimal:2',
+        'quantite' => 'integer',
         'date_ajout' => 'date',
         'prix' => 'decimal:2',
     ];

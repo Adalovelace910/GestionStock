@@ -73,16 +73,16 @@
                                     @if($produit->quantite <= 0)
                                         <span class="badge badge-soft-danger">Rupture (0)</span>
                                     @elseif($produit->quantite <= 10)
-                                        <span class="badge badge-soft-warning">{{ $produit->quantite }}</span>
+                                        <span class="badge badge-soft-warning">{{ (int) $produit->quantite }}</span>
                                     @else
-                                        <span class="fw-bold text-dark">{{ $produit->quantite }}</span>
+                                        <span class="fw-bold text-dark">{{ (int) $produit->quantite }}</span>
                                     @endif
                                 </td>
                                 <td class="text-end fw-semibold">
-                                    {{ number_format($produit->prix, 0, ',', ' ') }} <small class="text-muted">FCFA</small>
+                                    {{ $produit->prix == (int) $produit->prix ? number_format($produit->prix, 0, ',', ' ') : number_format($produit->prix, 2, ',', ' ') }} <small class="text-muted">FCFA</small>
                                 </td>
                                 <td class="text-end fw-bold text-dark">
-                                    {{ number_format($produit->quantite * $produit->prix, 0, ',', ' ') }} <small class="text-muted">FCFA</small>
+                                    {{ ($produit->quantite * $produit->prix) == (int)($produit->quantite * $produit->prix) ? number_format($produit->quantite * $produit->prix, 0, ',', ' ') : number_format($produit->quantite * $produit->prix, 2, ',', ' ') }} <small class="text-muted">FCFA</small>
                                 </td>
                                 @if(auth()->user()->role === 'admin')
                                 <td class="text-end pe-3">

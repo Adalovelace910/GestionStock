@@ -20,7 +20,7 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'quantite' => 'decimal:2',
+        'quantite' => 'integer',
         'prix' => 'decimal:2',
     ];
 
@@ -57,16 +57,16 @@ class Product extends Model
     }
 
     public function verifierSeuilStock(
-        float $ancienneQuantite
+        int|float $ancienneQuantite
     ): void {
         $parametre = Setting::first();
 
-        $seuil = (float) (
+        $seuil = (int) (
             $parametre->seuil_stock_bas ?? 10
         );
 
         if (
-            (float) $this->quantite <= $seuil
+            (int) $this->quantite <= $seuil
             &&
             $ancienneQuantite > $seuil
         ) {

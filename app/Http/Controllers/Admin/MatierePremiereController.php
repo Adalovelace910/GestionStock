@@ -51,7 +51,7 @@ class MatierePremiereController extends Controller
                 ['nullable', 'string', 'max:1000'],
 
             'quantite' =>
-                ['required', 'numeric', 'min:0'],
+                ['required', 'integer', 'min:0'],
 
             'date_ajout' =>
                 ['required', 'date'],
@@ -134,7 +134,7 @@ class MatierePremiereController extends Controller
                 ['nullable', 'string', 'max:1000'],
 
             'quantite' =>
-                ['required', 'numeric', 'min:0'],
+                ['required', 'integer', 'min:0'],
 
             'date_ajout' =>
                 ['required', 'date'],

@@ -16,6 +16,7 @@ class Out extends Model
     ];
 
     protected $casts = [
+        'quantite' => 'integer',
         'date_sortie' => 'date',
     ];
 

@@ -32,11 +32,11 @@
 <span class="fw-semibold">{{ $production->matierePremiere->nom ?? '—' }}</span>
 </td>
 <td data-order="{{ $production->quantite_matiere_premiere }}">
-{{ number_format($production->quantite_matiere_premiere,2,',',' ') }} kg
+{{ number_format($production->quantite_matiere_premiere,0,',',' ') }} kg
 </td>
 <td>
 @forelse($production->entrees as $entree)
-<div class="mb-1"><span class="badge bg-success-subtle text-success-emphasis">{{ $entree->produit->nom ?? '—' }} ({{ number_format($entree->quantite,2,',',' ') }})</span></div>
+<div class="mb-1"><span class="badge bg-success-subtle text-success-emphasis">{{ $entree->produit->nom ?? '—' }} ({{ number_format($entree->quantite,0,',',' ') }})</span></div>
 @empty
 <span class="text-muted">Aucun</span>
 @endforelse

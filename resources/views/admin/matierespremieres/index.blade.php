@@ -17,6 +17,8 @@
 <tr>
 <th>Date d'ajout</th>
 <th>Nom</th>
+<th>Stock disponible</th>
+<th>Prix unitaire</th>
 <th>Unité</th>
 <th class="text-end">Actions</th>
 </tr>
@@ -26,6 +28,8 @@
 <tr>
 <td>{{ $matiere->date_ajout ? $matiere->date_ajout->format('d/m/Y') : '-' }}</td>
 <td class="fw-semibold">{{ $matiere->nom }}</td>
+<td><span class="badge bg-light text-dark border">{{ (int) $matiere->quantite }}</span></td>
+<td>{{ $matiere->prix == (int) $matiere->prix ? number_format($matiere->prix, 0, ',', ' ') : number_format($matiere->prix, 2, ',', ' ') }} FCFA</td>
 <td>kg</td>
 <td class="text-end">
 <a href="{{ route('admin.matieres-premieres.edit',$matiere) }}" class="btn btn-sm btn-outline-secondary" title="Modifier"><i class="bi bi-pencil"></i></a>

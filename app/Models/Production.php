@@ -14,7 +14,7 @@ class Production extends Model
     ];
 
     protected $casts = [
-        'quantite_matiere_premiere' => 'decimal:2',
+        'quantite_matiere_premiere' => 'integer',
         'date_production' => 'date',
     ];
 

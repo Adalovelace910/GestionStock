@@ -40,7 +40,7 @@ $routePrefix = auth()->user()->role === 'admin' ? 'admin' : 'magasinier';
 </div>
 <div class="mb-3">
 <label class="form-label">Quantité sortie</label>
-<input type="number" name="quantite" min="1" value="{{ old('quantite') }}" class="form-control @error('quantite') is-invalid @enderror">
+<input type="number" step="1" name="quantite" min="1" value="{{ old('quantite') }}" class="form-control @error('quantite') is-invalid @enderror">
 @error('quantite')<div class="invalid-feedback">{{ $message }}</div>@enderror
 </div>
 <div class="mb-4">

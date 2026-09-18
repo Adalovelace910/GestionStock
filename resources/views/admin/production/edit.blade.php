@@ -42,7 +42,7 @@
                 <div class="mb-3">
                     <label class="form-label">Quantité de matière première utilisée</label>
                     <input type="text" class="form-control" readonly
-                           value="{{ number_format($production->quantite_matiere_premiere, 2, ',', ' ') }} kg">
+                           value="{{ number_format($production->quantite_matiere_premiere, 0, ',', ' ') }} kg">
                 </div>
 
                 <div class="mb-4">
@@ -51,7 +51,7 @@
                         @forelse($production->entrees as $entree)
                             <span class="badge bg-success-subtle text-success-emphasis">
                                 {{ $entree->produit->nom ?? '—' }}
-                                ({{ number_format($entree->quantite, 2, ',', ' ') }})
+                                ({{ number_format($entree->quantite, 0, ',', ' ') }})
                             </span>
                         @empty
                             <span class="text-muted">Aucun</span>

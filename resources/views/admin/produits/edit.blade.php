@@ -35,7 +35,7 @@
 </div>
 <div class="mb-3">
 <label class="form-label">Quantité</label>
-<input type="number" name="quantite" min="1" value="{{ old('quantite', $produit->quantite) }}" class="form-control @error('quantite') is-invalid @enderror" required>
+<input type="number" step="1" name="quantite" min="1" value="{{ old('quantite', (int) $produit->quantite) }}" class="form-control @error('quantite') is-invalid @enderror" required>
 @error('quantite')<div class="invalid-feedback">{{ $message }}</div>@enderror
 </div>
 <div class="mb-4">

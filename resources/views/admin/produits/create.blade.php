@@ -28,7 +28,7 @@
 </div>
 <div class="mb-3">
 <label class="form-label">Quantité</label>
-<input type="number" name="quantite" min="{{ $seuil }}" value="{{ old('quantite', $seuil) }}" class="form-control @error('quantite') is-invalid @enderror" required>
+<input type="number" step="1" name="quantite" min="{{ $seuil }}" value="{{ old('quantite', $seuil) }}" class="form-control @error('quantite') is-invalid @enderror" required>
 <small class="text-muted">La quantité initiale doit être d'au moins {{ $seuil }} (seuil de stock bas configuré dans les paramètres).</small>
 @error('quantite')<div class="invalid-feedback">{{ $message }}</div>@enderror
 </div>

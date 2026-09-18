@@ -28,7 +28,7 @@
 </div>
 <div class="mb-3">
 <label for="quantite" class="form-label">Quantité initiale (kg) <span class="text-danger">*</span></label>
-<input type="number" id="quantite" name="quantite" class="form-control @error('quantite') is-invalid @enderror" value="{{ old('quantite', 0) }}" min="0" step="0.01" required>
+<input type="number" id="quantite" name="quantite" class="form-control @error('quantite') is-invalid @enderror" value="{{ old('quantite', 0) }}" min="0" step="1" required>
 @error('quantite')<div class="invalid-feedback">{{ $message }}</div>@enderror
 </div>
 <div class="mb-3">
